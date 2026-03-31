@@ -26,54 +26,23 @@
         
         body { background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; padding-bottom: 40px; }
 
-        /* HEADER ESTRUTURADO EM BLOCOS PARA EVITAR SOBREPOSIÇÃO */
         .header {
             background: var(--primary-gradient); 
+            padding: 20px 15px; text-align: center;
             box-shadow: 0 4px 12px rgba(121, 40, 202, 0.2); 
             position: sticky; top: 0; z-index: 10;
-        }
-
-        .header-inner {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            min-height: 75px;
-        }
-
-        .header-left, .header-right {
-            width: 85px; /* Define um espaço fixo nas laterais para o título ficar no meio exato */
-            display: flex;
-            align-items: center;
+            display: flex; align-items: center; justify-content: center;
         }
         
-        .header-left { justify-content: flex-start; }
-        .header-right { justify-content: flex-end; }
-
-        .header-center {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            text-align: center;
-        }
-
         #btnVoltarTopo {
-            display: none; 
+            display: none; position: absolute; left: 15px; 
             background: rgba(255,255,255,0.2); border: none; border-radius: 8px;
-            color: white; font-size: 1rem; padding: 8px 12px; 
-            cursor: pointer; transition: 0.2s; font-weight: bold;
-            white-space: nowrap;
+            color: white; font-size: 1.2rem; padding: 8px 12px; 
+            cursor: pointer; transition: 0.2s;
         }
         #btnVoltarTopo:active { background: rgba(255,255,255,0.4); }
 
-        .header h1 { 
-            color: white; font-size: 1.4rem; margin: 0; 
-            display: flex; align-items: center; justify-content: center; gap: 8px; 
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            line-height: 1.2;
-        }
+        .header h1 { color: white; font-size: 1.5rem; margin: 0; display: flex; align-items: center; gap: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);}
         
         .app-container { max-width: 600px; margin: 0 auto; padding: 15px; }
         
@@ -160,16 +129,8 @@
 <body>
 
 <div class="header">
-    <div class="header-inner">
-        <div class="header-left">
-            <button id="btnVoltarTopo" onclick="voltarNavegacao()">⬅️ Voltar</button>
-        </div>
-        <div class="header-center">
-            <h1 onclick="navegar('menu')" style="cursor:pointer;">📋 Caderno de Cuidados</h1>
-        </div>
-        <div class="header-right">
-            </div>
-    </div>
+    <button id="btnVoltarTopo" onclick="voltarNavegacao()">⬅️ Voltar</button>
+    <h1 onclick="navegar('menu')" style="cursor:pointer;">📋 Caderno de Cuidados</h1>
 </div>
 
 <div class="app-container">
@@ -303,6 +264,7 @@
         }
     }
 
+    // Função que verifica se o "Outro" foi selecionado para exibir o campo de texto
     function verificarOutroResponsavel() {
         const select = document.getElementById('selectResponsavel');
         const inputOutro = document.getElementById('inputOutroResponsavel');
@@ -312,7 +274,7 @@
             inputOutro.focus();
         } else {
             inputOutro.style.display = 'none';
-            inputOutro.value = ''; 
+            inputOutro.value = ''; // Limpa o campo se a pessoa mudar de ideia
         }
     }
 
@@ -322,6 +284,7 @@
         
         let html = `<div class="card-header" style="border-bottom-color: ${config.color};"><span style="font-size:1.8rem; margin-right:5px;">${config.icon}</span> <h2 style="color: ${config.color};">${config.titulo}</h2></div>`;
 
+        // NOVO CAMPO: Responsável com Select e Input para "Outro"
         html += `
         <div class="item-group" style="background: var(--primary-light); padding: 18px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #d8b4fe;">
             <label style="font-weight: bold; color: var(--primary-color); display: block; margin-bottom: 8px; font-size: 1.15rem;">👤 Quem está registrando?</label>
@@ -376,6 +339,7 @@
         const formData = new FormData(form);
         dadosTemporarios = Object.fromEntries(formData.entries());
         
+        // VALIDAÇÃO DO RESPONSÁVEL
         const selectResp = document.getElementById('selectResponsavel').value;
         const inputOutro = document.getElementById('inputOutroResponsavel').value;
         let nomeResponsavel = '';
@@ -395,6 +359,7 @@
             nomeResponsavel = selectResp;
         }
 
+        // Salvar o nome correto nos dados
         dadosTemporarios.Responsavel = nomeResponsavel;
 
         const configTurno = estruturaTurnos[turnoAtual];
@@ -467,14 +432,36 @@
         } else {
             registros.forEach(reg => {
                 let resumoMed = '';
-                const configMeds = estruturaTurnos[Object.keys(estruturaTurnos).find(k => estruturaTurnos[k].titulo === reg.turno)].medicamentos;
                 
-                configMeds.forEach(med => {
-                    const valor = reg.dados[med.id];
-                    if(valor && (valor.includes('✅') || valor.includes('⚠️') || valor.includes('❌'))) {
-                        resumoMed += `<div><strong>${med.nome}:</strong> ${valor.split(' ')[0]}</div>`;
+                // Encontra a configuração do turno com segurança
+                const chaveTurno = Object.keys(estruturaTurnos).find(k => estruturaTurnos[k].titulo === reg.turno);
+                
+                if (chaveTurno) {
+                    const configMeds = estruturaTurnos[chaveTurno].medicamentos;
+                    configMeds.forEach(med => {
+                        // Removemos a trava dos emojis. Agora mostra o que estiver salvo ou "Sem registro"
+                        const valor = reg.dados[med.id] || 'Sem registro';
+                        resumoMed += `<div><strong>${med.nome}:</strong> ${valor}</div>`;
+                    });
+                }
+
+                // --- CORREÇÃO: Bloco adicionado para puxar os Sinais Vitais ---
+                let resumoVitais = '';
+                if (reg.dados.PAS || reg.dados.PAD || reg.dados.Pulso || reg.dados.Oximetria) {
+                    resumoVitais += `<div style="font-weight:bold; margin-top: 12px; margin-bottom: 5px; color: #701a75;">Sinais Vitais:</div>`;
+                    resumoVitais += `<div class="med-lista" style="background: #faf5ff; padding: 10px; border-radius: 8px;">`;
+                    if (reg.dados.PAS || reg.dados.PAD) {
+                        resumoVitais += `<div><strong>Pressão:</strong> ${reg.dados.PAS || '?'} x ${reg.dados.PAD || '?'}</div>`;
                     }
-                });
+                    if (reg.dados.Pulso) {
+                        resumoVitais += `<div><strong>Pulso:</strong> ${reg.dados.Pulso} bpm</div>`;
+                    }
+                    if (reg.dados.Oximetria) {
+                        resumoVitais += `<div><strong>Oximetria:</strong> ${reg.dados.Oximetria}%</div>`;
+                    }
+                    resumoVitais += `</div>`;
+                }
+                // ---------------------------------------------------------------
 
                 let htmlCard = `
                 <div class="registro-card" style="border-left-color: ${reg.color || 'var(--primary-color)'};">
@@ -488,14 +475,16 @@
                     </div>
 
                     <div class="registro-corpo">
-                        <div style="font-weight:bold; margin-bottom: 5px;">Medicamentos:</div>
+                        <div style="font-weight:bold; margin-bottom: 5px; color: #701a75;">Medicamentos:</div>
                         <div class="med-lista">
                             ${resumoMed || '<span style="color:#999;font-style:italic;">Nenhum medicado</span>'}
                         </div>
+                        
+                        ${resumoVitais}
                 `;
 
                 if(reg.dados.Observacoes && reg.dados.Observacoes.trim() !== '') {
-                    htmlCard += `<div class="resumo-obs" style="margin-top:0; font-size:0.95rem; padding:10px;">"${reg.dados.Observacoes}"</div>`;
+                    htmlCard += `<div class="resumo-obs" style="margin-top:10px; font-size:0.95rem; padding:10px;">"${reg.dados.Observacoes}"</div>`;
                 }
                 
                 htmlCard += `</div></div>`;
