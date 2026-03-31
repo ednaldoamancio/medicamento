@@ -26,7 +26,7 @@
         
         body { background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; padding-bottom: 40px; }
 
-        /* HEADER CORRIGIDO PARA NÃO SOBREPOR NAS LETRAS */
+        /* HEADER ESTRUTURADO EM BLOCOS PARA EVITAR SOBREPOSIÇÃO */
         .header {
             background: var(--primary-gradient); 
             box-shadow: 0 4px 12px rgba(121, 40, 202, 0.2); 
@@ -36,29 +36,42 @@
         .header-inner {
             max-width: 600px;
             margin: 0 auto;
-            padding: 20px 15px;
-            position: relative;
+            padding: 15px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            min-height: 75px;
+        }
+
+        .header-left, .header-right {
+            width: 85px; /* Define um espaço fixo nas laterais para o título ficar no meio exato */
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-left { justify-content: flex-start; }
+        .header-right { justify-content: flex-end; }
+
+        .header-center {
+            flex-grow: 1;
+            display: flex;
             justify-content: center;
-            min-height: 70px;
+            text-align: center;
         }
 
         #btnVoltarTopo {
-            display: none; position: absolute; left: 15px; 
+            display: none; 
             background: rgba(255,255,255,0.2); border: none; border-radius: 8px;
-            color: white; font-size: 1.1rem; padding: 8px 12px; 
+            color: white; font-size: 1rem; padding: 8px 12px; 
             cursor: pointer; transition: 0.2s; font-weight: bold;
+            white-space: nowrap;
         }
-        
         #btnVoltarTopo:active { background: rgba(255,255,255,0.4); }
 
         .header h1 { 
-            color: white; font-size: 1.5rem; margin: 0; 
+            color: white; font-size: 1.4rem; margin: 0; 
             display: flex; align-items: center; justify-content: center; gap: 8px; 
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            padding: 0 90px; /* Garante que o texto nunca encoste no botão voltar */
-            text-align: center;
             line-height: 1.2;
         }
         
@@ -148,8 +161,14 @@
 
 <div class="header">
     <div class="header-inner">
-        <button id="btnVoltarTopo" onclick="voltarNavegacao()">⬅️ Voltar</button>
-        <h1 onclick="navegar('menu')" style="cursor:pointer;">📋 Caderno de Cuidados</h1>
+        <div class="header-left">
+            <button id="btnVoltarTopo" onclick="voltarNavegacao()">⬅️ Voltar</button>
+        </div>
+        <div class="header-center">
+            <h1 onclick="navegar('menu')" style="cursor:pointer;">📋 Caderno de Cuidados</h1>
+        </div>
+        <div class="header-right">
+            </div>
     </div>
 </div>
 
@@ -284,7 +303,6 @@
         }
     }
 
-    // Função que verifica se o "Outro" foi selecionado para exibir o campo de texto
     function verificarOutroResponsavel() {
         const select = document.getElementById('selectResponsavel');
         const inputOutro = document.getElementById('inputOutroResponsavel');
@@ -294,7 +312,7 @@
             inputOutro.focus();
         } else {
             inputOutro.style.display = 'none';
-            inputOutro.value = ''; // Limpa o campo se a pessoa mudar de ideia
+            inputOutro.value = ''; 
         }
     }
 
@@ -304,7 +322,6 @@
         
         let html = `<div class="card-header" style="border-bottom-color: ${config.color};"><span style="font-size:1.8rem; margin-right:5px;">${config.icon}</span> <h2 style="color: ${config.color};">${config.titulo}</h2></div>`;
 
-        // NOVO CAMPO: Responsável com Select e Input para "Outro"
         html += `
         <div class="item-group" style="background: var(--primary-light); padding: 18px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #d8b4fe;">
             <label style="font-weight: bold; color: var(--primary-color); display: block; margin-bottom: 8px; font-size: 1.15rem;">👤 Quem está registrando?</label>
@@ -359,7 +376,6 @@
         const formData = new FormData(form);
         dadosTemporarios = Object.fromEntries(formData.entries());
         
-        // VALIDAÇÃO DO RESPONSÁVEL
         const selectResp = document.getElementById('selectResponsavel').value;
         const inputOutro = document.getElementById('inputOutroResponsavel').value;
         let nomeResponsavel = '';
