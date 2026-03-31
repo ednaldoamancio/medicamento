@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Caderno de Cuidados</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #ff0080 0%, #7928ca 100%);
+            --primary-color: #7928ca; 
+            --primary-light: #f3e8ff; 
+            --accent-pink: #ff0080;
+            --bg: #fdf2f8; 
+            --card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            
+            --manha: #ff9a9e; 
+            --tarde: #a1887f; 
+            --noite: #7986cb; 
+            --success: #10b981;
+        }
+        
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        
+        body { background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; padding-bottom: 40px; }
+
+        .header {
+            background: var(--primary-gradient); 
+            padding: 20px 15px; text-align: center;
+            box-shadow: 0 4px 12px rgba(121, 40, 202, 0.2); 
+            position: sticky; top: 0; z-index: 10;
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        #btnVoltarTopo {
+            display: none; position: absolute; left: 15px; 
+            background: rgba(255,255,255,0.2); border: none; border-radius: 8px;
+            color: white; font-size: 1.2rem; padding: 8px 12px; 
+            cursor: pointer; transition: 0.2s;
+        }
+        #btnVoltarTopo:active { background: rgba(255,255,255,0.4); }
+
+        .header h1 { color: white; font-size: 1.5rem; margin: 0; display: flex; align-items: center; gap: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);}
+        
+        .app-container { max-width: 600px; margin: 0 auto; padding: 15px; }
+        
+        .tela { display: none; }
+        .tela.ativa { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .menu-grid { display: grid; gap: 20px; margin-top: 30px; }
+        .btn-menu {
+            background: var(--card); border: none; border-radius: 20px;
+            padding: 30px 25px; font-size: 1.3rem; font-weight: bold; color: var(--text-main);
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08); cursor: pointer; transition: 0.3s;
+        }
+        .btn-menu:active { transform: scale(0.97); }
+        .btn-menu .icon { font-size: 2.5rem; }
+        
+        .btn-manha { border-bottom: 8px solid var(--manha); color: #86198f; }
+        .btn-tarde { border-bottom: 8px solid #ff7043; color: #c2410c; }
+        .btn-noite { border-bottom: 8px solid var(--noite); color: #1e3a8a; }
+        .btn-historico { background: var(--primary-gradient); color: white; margin-top: 25px; border: none; }
+        .btn-historico .icon { color: white; }
+
+        .card { background: var(--card); border-radius: 16px; padding: 25px; margin-bottom: 25px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--primary-light); }
+        .card-header h2 { margin: 0; font-size: 1.4rem; color: var(--primary-color); }
+        
+        .item-group { display: flex; flex-direction: column; padding: 15px 0; border-bottom: 1px dashed var(--border); gap: 10px; }
+        .item-group:last-child { border-bottom: none; }
+        .item-label { font-weight: 600; font-size: 1.1rem; color: #4a044e; }
+        
+        select, input[type="text"], input[type="number"], textarea {
+            padding: 16px; border: 2px solid #fdf4ff; border-radius: 12px; 
+            font-size: 1.1rem; background-color: #faf5ff; width: 100%; color: var(--text-main);
+        }
+        select:focus, input:focus, textarea:focus {
+            outline: none; border-color: var(--accent-pink); background-color: white;
+            box-shadow: 0 0 0 4px rgba(255, 0, 128, 0.1);
+        }
+        textarea { height: 140px; resize: vertical; }
+        
+        .vitals-grid { display: grid; grid-template-columns: 1fr; gap: 18px; margin-top: 20px; background: #faf5ff; padding: 20px; border-radius: 12px; border: 1px solid #f3e8ff;}
+        .vitals-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .vitals-grid label { font-size: 1rem; color: #701a75; font-weight: 600; margin-bottom: 8px; display: block;}
+        .pa-group { display: flex; align-items: center; gap: 12px; }
+        .pa-group input { text-align: center; }
+
+        .acoes-container { display: flex; flex-direction: column; gap: 12px; }
+        button { width: 100%; padding: 20px; border: none; border-radius: 14px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.2s;}
+        
+        .btn-primary { background: var(--primary-gradient); color: white; box-shadow: 0 4px 10px rgba(121, 40, 202, 0.3); }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-success { background-color: var(--success); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
+        .btn-voltar { background-color: white; color: var(--text-muted); border: 2px solid var(--border); }
+        .btn-voltar:active { background-color: #f8fafc; }
+        
+        .resumo-papel {
+            background: white; padding: 30px; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            background-image: linear-gradient(#fdf2f8 1px, transparent 1px); background-size: 100% 32px;
+            line-height: 32px; font-family: 'Courier New', Courier, monospace; font-size: 1.05rem; margin-bottom: 25px;
+            border-left: 8px solid var(--accent-pink);
+        }
+        .resumo-papel h3 { margin-top: 0; text-align: center; border-bottom: 3px solid #333; padding-bottom: 12px; color: #333;}
+        .resumo-secao { font-weight: bold; color: var(--primary-color); margin-top: 15px; border-bottom: 1px solid #eee; font-size: 1.15rem;}
+        .resumo-item { display: flex; justify-content: space-between; border-bottom: 1px dotted #ccc; color: #444; padding: 4px 0;}
+        .resumo-item span:first-child { flex: 1; padding-right: 15px; line-height: 1.3; margin-top: 8px; }
+        .resumo-item span:last-child { font-weight: bold; }
+        .resumo-obs { white-space: pre-wrap; margin-top: 15px; background: #fff1f2; padding: 15px; line-height: 1.6; border-left: 5px solid var(--accent-pink); border-radius: 4px; color: #881337;}
+
+        .registro-card { background: white; padding: 20px; border-radius: 12px; border-left: 6px solid var(--primary-color); margin-bottom: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.06);}
+        .registro-header { display: flex; justify-content: space-between; font-weight: bold; color: var(--primary-color); margin-bottom: 12px; border-bottom: 2px solid var(--primary-light); padding-bottom: 8px; font-size: 1.1rem;}
+        .registro-responsavel { font-size: 0.95rem; color: var(--accent-pink); font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 5px; background: #fdf2f8; padding: 8px; border-radius: 8px;}
+        .registro-corpo { font-size: 1rem; color: #334155; }
+        
+        .med-lista { margin-top: 8px; margin-bottom: 12px; font-size: 0.95rem; line-height: 1.5; color: #475569; }
+        .med-lista div { margin-bottom: 5px; padding-left: 10px; border-left: 2px solid #e2e8f0; }
+
+        .btn-exportar { background-color: #f1f5f9; color: #333; border: 2px solid #cbd5e1; margin-top: 25px;}
+        
+        #mensagem { text-align: center; color: white; background: var(--primary-gradient); padding: 18px; font-weight: bold; border-radius: 12px; margin-bottom: 20px; display: none; box-shadow: 0 4px 10px rgba(121, 40, 202, 0.3); animation: slideDown 0.4s ease; }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <button id="btnVoltarTopo" onclick="voltarNavegacao()">⬅️ Voltar</button>
+    <h1 onclick="navegar('menu')" style="cursor:pointer;">📋 Caderno de Cuidados</h1>
+</div>
+
+<div class="app-container">
+    <div id="mensagem">✨ Registro salvo com sucesso!</div>
+
+    <div id="tela-menu" class="tela ativa">
+        <h2 style="color: #701a75; font-size: 1.2rem; text-align: center; margin-bottom: 25px;">Olá! Qual turno você vai registrar agora?</h2>
+        
+        <div class="menu-grid">
+            <button class="btn-menu btn-manha" onclick="abrirTurno('manha')">
+                <span><span class="icon">🌅</span> Manhã</span>
+                <span style="color: var(--manha);">❯</span>
+            </button>
+            
+            <button class="btn-menu btn-tarde" onclick="abrirTurno('tarde')">
+                <span><span class="icon">☀️</span> Tarde</span>
+                <span style="color: #ff7043;">❯</span>
+            </button>
+            
+            <button class="btn-menu btn-noite" onclick="abrirTurno('noite')">
+                <span><span class="icon">🌙</span> Noite</span>
+                <span style="color: var(--noite);">❯</span>
+            </button>
+
+            <button class="btn-menu btn-historico" onclick="abrirHistorico()">
+                <span><span class="icon">📖</span> Ver Registros (Caderno)</span>
+                <span>❯</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="tela-formulario" class="tela">
+        <form id="formTurno">
+            <div class="card" id="card-conteudo"></div>
+            
+            <div class="card">
+                <div class="card-header"><h2>📝 Observações / Ocorrências</h2></div>
+                <p style="font-size: 0.95rem; color: var(--text-muted); margin-top: 0;">Registre sintomas, motivos de suspensão ou medicações adicionais.</p>
+                <textarea id="campoObservacoes" name="Observacoes" placeholder="Digite as observações aqui..."></textarea>
+            </div>
+
+            <div class="acoes-container">
+                <button type="button" class="btn-primary" onclick="prepararResumo()">👁️ Revisar antes de Salvar</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="tela-resumo" class="tela">
+        <div class="card" style="padding: 15px; background: #fff1f2; border: 2px solid var(--accent-pink); margin-bottom: 15px; text-align: center; color: #881337; font-weight: bold; border-radius: 12px;">Confirme as informações completas antes de gravar.</div>
+        <div class="resumo-papel" id="conteudoResumo"></div>
+        <div class="acoes-container">
+            <button type="button" class="btn-success" onclick="salvarDefinitivo()">💾 Confirmar e Salvar</button>
+            <button type="button" class="btn-voltar" onclick="navegar('formulario')">✏️ Corrigir</button>
+        </div>
+    </div>
+
+    <div id="tela-historico" class="tela">
+        <div class="card-header" style="margin-bottom: 25px;"><h2>📖 Histórico Completo</h2></div>
+        <div id="lista-historico"></div>
+        <button type="button" class="btn-exportar" onclick="exportarCSV()" style="width: 100%;">📥 Baixar Planilha Geral</button>
+    </div>
+
+</div>
+
+<script>
+    let turnoAtual = '';
+    let telaAnterior = 'menu';
+    let dadosTemporarios = {};
+    let registros = JSON.parse(localStorage.getItem('registrosCuidados')) || [];
+
+    document.addEventListener('keydown', function(event) {
+        if(event.key === "Enter" && event.target.tagName !== "TEXTAREA") {
+            event.preventDefault();
+        }
+    });
+
+    const estruturaTurnos = {
+        manha: {
+            titulo: "Manhã", icon: "🌅", color: "var(--manha)",
+            medicamentos: [
+                { nome: "Succinato de Solifenacina 5mg", id: "Solifenacina" },
+                { nome: "Mesilato de Doxasozina 4mg", id: "Doxasozina" },
+                { nome: "Pantoprazol 20mg", id: "Pantoprazol" },
+                { nome: "Levotiroxina 75mcg", id: "Levotiroxina" },
+                { nome: "Alopurinol 100mg", id: "Alopurinol" }
+            ],
+            sinaisVitais: true
+        },
+        tarde: {
+            titulo: "Tarde", icon: "☀️", color: "#ff7043",
+            medicamentos: [{ nome: "Pregabalina 50mg", id: "Pregabalina" }],
+            sinaisVitais: true
+        },
+        noite: {
+            titulo: "Noite", icon: "🌙", color: "var(--noite)",
+            medicamentos: [
+                { nome: "Mirabregona 50mg", id: "Mirabregona" },
+                { nome: "Doxazosina 4mg", id: "Doxazosina_Noite" },
+                { nome: "Finasterida 5mg", id: "Finasterida" },
+                { nome: "Atorvastatina 40mg", id: "Atorvastatina" },
+                { nome: "AAS 100mg", id: "AAS" }
+            ],
+            sinaisVitais: false
+        }
+    };
+
+    function navegar(telaId) {
+        const telaAtiva = document.querySelector('.tela.ativa');
+        if (telaAtiva) {
+            telaAnterior = telaAtiva.id.replace('tela-', '');
+        }
+
+        document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
+        document.getElementById(`tela-${telaId}`).classList.add('ativa');
+        window.scrollTo(0, 0);
+
+        const btnVoltar = document.getElementById('btnVoltarTopo');
+        if (telaId === 'menu') {
+            btnVoltar.style.display = 'none';
+        } else {
+            btnVoltar.style.display = 'block';
+        }
+    }
+
+    function voltarNavegacao() {
+        const telaAtual = document.querySelector('.tela.ativa').id.replace('tela-', '');
+        if (telaAtual === 'resumo') {
+            navegar('formulario');
+        } else {
+            navegar('menu');
+        }
+    }
+
+    // Função que verifica se o "Outro" foi selecionado para exibir o campo de texto
+    function verificarOutroResponsavel() {
+        const select = document.getElementById('selectResponsavel');
+        const inputOutro = document.getElementById('inputOutroResponsavel');
+        
+        if (select.value === 'Outro') {
+            inputOutro.style.display = 'block';
+            inputOutro.focus();
+        } else {
+            inputOutro.style.display = 'none';
+            inputOutro.value = ''; // Limpa o campo se a pessoa mudar de ideia
+        }
+    }
+
+    function abrirTurno(turno) {
+        turnoAtual = turno;
+        const config = estruturaTurnos[turno];
+        
+        let html = `<div class="card-header" style="border-bottom-color: ${config.color};"><span style="font-size:1.8rem; margin-right:5px;">${config.icon}</span> <h2 style="color: ${config.color};">${config.titulo}</h2></div>`;
+
+        // NOVO CAMPO: Responsável com Select e Input para "Outro"
+        html += `
+        <div class="item-group" style="background: var(--primary-light); padding: 18px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #d8b4fe;">
+            <label style="font-weight: bold; color: var(--primary-color); display: block; margin-bottom: 8px; font-size: 1.15rem;">👤 Quem está registrando?</label>
+            
+            <select id="selectResponsavel" onchange="verificarOutroResponsavel()" style="border-color: #c084fc; background: white; font-weight: bold; margin-bottom: 10px;">
+                <option value="">Selecione...</option>
+                <option value="Naldo">Naldo</option>
+                <option value="Gê">Gê</option>
+                <option value="Outro">Outro familiar...</option>
+            </select>
+            
+            <input type="text" id="inputOutroResponsavel" placeholder="Qual o seu nome?" style="display: none; border-color: #c084fc; background: white; margin-top: 5px;">
+        </div>`;
+
+        config.medicamentos.forEach(med => {
+            html += `
+            <div class="item-group"><span class="item-label">${med.nome}</span>
+                <select name="${med.id}">
+                    <option value="">Aguardando...</option>
+                    <option value="✅ Medicado">✅ Medicado</option>
+                    <option value="⚠️ Não dei">⚠️ Não dei</option>
+                    <option value="❌ Acabou">❌ Acabou</option>
+                </select>
+            </div>`;
+        });
+
+        if(config.sinaisVitais) {
+            html += `
+            <div class="vitals-grid">
+                <div>
+                    <label>❤️ Pressão Arterial (ex: 120 x 80)</label>
+                    <div class="pa-group">
+                        <input type="number" name="PAS" placeholder="120"> 
+                        <span style="font-weight:bold; color: var(--accent-pink);">X</span> 
+                        <input type="number" name="PAD" placeholder="80">
+                    </div>
+                </div>
+                <div class="vitals-row">
+                    <div><label>💓 Pulso</label><input type="number" name="Pulso" placeholder="bpm"></div>
+                    <div><label>🫁 Oximetria</label><input type="number" name="Oximetria" placeholder="%"></div>
+                </div>
+            </div>`;
+        }
+
+        document.getElementById('card-conteudo').innerHTML = html;
+        document.getElementById('formTurno').reset();
+        navegar('formulario');
+    }
+
+    function prepararResumo() {
+        const form = document.getElementById('formTurno');
+        const formData = new FormData(form);
+        dadosTemporarios = Object.fromEntries(formData.entries());
+        
+        // VALIDAÇÃO DO RESPONSÁVEL
+        const selectResp = document.getElementById('selectResponsavel').value;
+        const inputOutro = document.getElementById('inputOutroResponsavel').value;
+        let nomeResponsavel = '';
+
+        if (selectResp === '') {
+            alert("⚠️ Atenção: Por favor, selecione seu nome no topo da página antes de prosseguir.");
+            document.getElementById('selectResponsavel').focus();
+            return;
+        } else if (selectResp === 'Outro') {
+            if (inputOutro.trim() === '') {
+                alert("⚠️ Atenção: Por favor, digite o seu nome.");
+                document.getElementById('inputOutroResponsavel').focus();
+                return;
+            }
+            nomeResponsavel = inputOutro.trim();
+        } else {
+            nomeResponsavel = selectResp;
+        }
+
+        // Salvar o nome correto nos dados
+        dadosTemporarios.Responsavel = nomeResponsavel;
+
+        const configTurno = estruturaTurnos[turnoAtual];
+        dadosTemporarios.turnoFormatado = `${configTurno.icon} ${configTurno.titulo}`;
+
+        const dataAtual = new Date();
+        const dataFormatada = dataAtual.toLocaleDateString('pt-BR');
+        
+        let html = `<h3>Resumo - ${dataFormatada}<br><span style="color:${configTurno.color};">${dadosTemporarios.turnoFormatado}</span></h3>`;
+
+        html += `<div class="resumo-secao">Responsável:</div>`;
+        html += `<div class="resumo-item"><span>Preparado por:</span> <span style="color: var(--accent-pink);">${dadosTemporarios.Responsavel}</span></div>`;
+
+        html += `<div class="resumo-secao">Medicações:</div>`;
+        configTurno.medicamentos.forEach(med => {
+            const valor = dadosTemporarios[med.id] || '-';
+            html += `<div class="resumo-item"><span>${med.nome}:</span> <span>${valor}</span></div>`;
+        });
+
+        if(configTurno.sinaisVitais) {
+            const pas = dadosTemporarios.PAS;
+            const pad = dadosTemporarios.PAD;
+            const pa = (pas && pad) ? `${pas}x${pad}` : (pas || pad) ? `${pas||'?'}x${pad||'?'}` : '-';
+            
+            html += `<div class="resumo-secao">Sinais Vitais:</div>`;
+            html += `<div class="resumo-item"><span>Pressão Arterial:</span> <span>${pa}</span></div>`;
+            html += `<div class="resumo-item"><span>Pulso Cardíaco:</span> <span>${dadosTemporarios.Pulso ? dadosTemporarios.Pulso + ' bpm' : '-'}</span></div>`;
+            html += `<div class="resumo-item"><span>Oximetria:</span> <span>${dadosTemporarios.Oximetria ? dadosTemporarios.Oximetria + '%' : '-'}</span></div>`;
+        }
+
+        html += `<div class="resumo-secao">Observações:</div>`;
+        if(dadosTemporarios.Observacoes && dadosTemporarios.Observacoes.trim() !== "") {
+            html += `<div class="resumo-obs">${dadosTemporarios.Observacoes}</div>`;
+        } else {
+            html += `<div class="resumo-obs" style="font-style:italic; background:#eee; color:#666; border-color:#ccc;">Nenhuma ocorrência relatada no turno.</div>`;
+        }
+
+        document.getElementById('conteudoResumo').innerHTML = html;
+        navegar('resumo');
+    }
+
+    function salvarDefinitivo() {
+        const dataAtual = new Date();
+        const registroFinal = {
+            id: Date.now(),
+            data: dataAtual.toLocaleDateString('pt-BR'),
+            hora: dataAtual.toLocaleTimeString('pt-BR').substring(0, 5),
+            turno: estruturaTurnos[turnoAtual].titulo,
+            icon: estruturaTurnos[turnoAtual].icon,
+            color: estruturaTurnos[turnoAtual].color,
+            dados: dadosTemporarios
+        };
+
+        registros.unshift(registroFinal); 
+        localStorage.setItem('registrosCuidados', JSON.stringify(registros));
+
+        navegar('menu');
+        const msg = document.getElementById('mensagem');
+        msg.style.display = 'block';
+        window.scrollTo(0, 0); 
+        setTimeout(() => { msg.style.display = 'none'; }, 3500);
+    }
+
+    function abrirHistorico() {
+        const container = document.getElementById('lista-historico');
+        container.innerHTML = '';
+
+        if(registros.length === 0) {
+            container.innerHTML = '<div class="card" style="text-align:center; color:var(--text-muted); padding: 30px; background:#faf5ff;">📖 O caderno ainda está em branco.<br>Os registros aparecerão aqui.</div>';
+        } else {
+            registros.forEach(reg => {
+                let resumoMed = '';
+                const configMeds = estruturaTurnos[Object.keys(estruturaTurnos).find(k => estruturaTurnos[k].titulo === reg.turno)].medicamentos;
+                
+                configMeds.forEach(med => {
+                    const valor = reg.dados[med.id];
+                    if(valor && (valor.includes('✅') || valor.includes('⚠️') || valor.includes('❌'))) {
+                        resumoMed += `<div><strong>${med.nome}:</strong> ${valor.split(' ')[0]}</div>`;
+                    }
+                });
+
+                let htmlCard = `
+                <div class="registro-card" style="border-left-color: ${reg.color || 'var(--primary-color)'};">
+                    <div class="registro-header" style="color: ${reg.color || 'var(--primary-color)'}; border-bottom-color: ${reg.color ? reg.color + '22' : 'var(--primary-light)'};">
+                        <span>${reg.data} às ${reg.hora}</span>
+                        <span>${reg.icon || ''} ${reg.turno}</span>
+                    </div>
+                    
+                    <div class="registro-responsavel">
+                        👤 Preparado por: ${reg.dados.Responsavel || 'Não informado'}
+                    </div>
+
+                    <div class="registro-corpo">
+                        <div style="font-weight:bold; margin-bottom: 5px;">Medicamentos:</div>
+                        <div class="med-lista">
+                            ${resumoMed || '<span style="color:#999;font-style:italic;">Nenhum medicado</span>'}
+                        </div>
+                `;
+
+                if(reg.dados.Observacoes && reg.dados.Observacoes.trim() !== '') {
+                    htmlCard += `<div class="resumo-obs" style="margin-top:0; font-size:0.95rem; padding:10px;">"${reg.dados.Observacoes}"</div>`;
+                }
+                
+                htmlCard += `</div></div>`;
+                container.innerHTML += htmlCard;
+            });
+        }
+        navegar('historico');
+    }
+
+    function exportarCSV() {
+        if (registros.length === 0) return alert("Sem dados para exportar.");
+        
+        let csvContent = "Data;Hora;Turno;Responsavel;Dados JSON (Bruto)\n";
+        registros.forEach(reg => {
+            let dadosString = JSON.stringify(reg.dados).replace(/"/g, '""');
+            let resp = reg.dados.Responsavel || 'N/A';
+            csvContent += `"${reg.data}";"${reg.hora}";"${reg.turno}";"${resp}";"${dadosString}"\n`;
+        });
+
+        const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "historico_completo_tablet.csv";
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+
+</body>
+</html>
