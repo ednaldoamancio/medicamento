@@ -20,6 +20,7 @@
             --tarde: #a1887f; 
             --noite: #7986cb; 
             --success: #10b981;
+            --danger: #ef4444; /* Cor vermelha para exclusão */
         }
         
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -104,7 +105,6 @@
         .item-group { display: flex; flex-direction: column; padding: 18px 0; border-bottom: 1px dashed var(--border); gap: 10px; }
         .item-group:last-child { border-bottom: none; }
         
-        /* FONTE MAIOR PARA OS MEDICAMENTOS */
         .item-label { font-weight: 700; font-size: 1.4rem; color: #4a044e; line-height: 1.3; margin-bottom: 5px; }
         
         select, input[type="text"], input[type="number"], textarea {
@@ -132,9 +132,12 @@
         .btn-voltar { background-color: white; color: var(--text-muted); border: 2px solid var(--border); }
         .btn-voltar:active { background-color: #f8fafc; }
         
-        /* BOTÃO DE EDITAR NO HISTÓRICO */
-        .btn-editar { width: auto; padding: 10px 15px; background-color: #f8fafc; color: var(--primary-color); border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 15px;}
+        /* BOTÕES DE AÇÃO NO HISTÓRICO */
+        .botoes-acao-card { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+        .btn-editar { width: auto; padding: 10px 15px; background-color: #f8fafc; color: var(--primary-color); border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;}
         .btn-editar:active { background-color: #e2e8f0; }
+        .btn-excluir { width: auto; padding: 10px 15px; background-color: #fef2f2; color: var(--danger); border: 1px solid #fca5a5; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;}
+        .btn-excluir:active { background-color: #fee2e2; }
 
         .resumo-papel {
             background: white; padding: 30px; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.1);
@@ -242,7 +245,7 @@
 <script>
     let turnoAtual = '';
     let telaAnterior = 'menu';
-    let idEdicaoAtual = null; // Variável para controlar se estamos editando um registro existente
+    let idEdicaoAtual = null; 
     let dadosTemporarios = {};
     let registros = JSON.parse(localStorage.getItem('registrosCuidados')) || [];
 
@@ -305,7 +308,7 @@
         if (telaAtual === 'resumo') {
             navegar('formulario');
         } else if (telaAtual === 'formulario' && idEdicaoAtual) {
-            navegar('historico'); // Se estava editando e cancelou, volta pro histórico
+            navegar('historico'); 
         } else {
             navegar('menu');
         }
@@ -324,11 +327,9 @@
         }
     }
 
-    // Função auxiliar para gerar os campos do formulário
     function renderizarCamposFormulario(turno) {
         const config = estruturaTurnos[turno];
         
-        // Se estiver editando, mostra aviso no título
         let tituloDisplay = idEdicaoAtual ? `Editando ${config.titulo}` : config.titulo;
 
         let html = `<div class="card-header" style="border-bottom-color: ${config.color};"><span style="font-size:1.8rem; margin-right:5px;">${config.icon}</span> <h2 style="color: ${config.color};">${tituloDisplay}</h2></div>`;
@@ -380,9 +381,8 @@
         document.getElementById('card-conteudo').innerHTML = html;
     }
 
-    // Abrir um Novo Turno do Zero
     function abrirTurno(turno) {
-        idEdicaoAtual = null; // Garante que é um registro novo
+        idEdicaoAtual = null; 
         turnoAtual = turno;
         
         renderizarCamposFormulario(turno);
@@ -392,20 +392,17 @@
         navegar('formulario');
     }
 
-    // Carregar um turno existente para Edição
     function editarRegistro(id) {
         const index = registros.findIndex(r => r.id === id);
         if (index === -1) return;
         
         const reg = registros[index];
-        idEdicaoAtual = id; // Marca qual ID estamos alterando
+        idEdicaoAtual = id; 
         
-        // Descobre qual turno é baseado no título salvo
         turnoAtual = Object.keys(estruturaTurnos).find(k => estruturaTurnos[k].titulo === reg.turno);
         
         renderizarCamposFormulario(turnoAtual);
         
-        // Preencher com os dados salvos
         const dados = reg.dados;
         
         const selectResp = document.getElementById('selectResponsavel');
@@ -437,6 +434,27 @@
         navegar('formulario');
     }
 
+    // NOVA FUNÇÃO: Excluir Registro
+    function excluirRegistro(id) {
+        if(confirm("⚠️ Tem certeza que deseja excluir este registro?\n\nEsta ação não pode ser desfeita.")) {
+            // Remove o registro da lista
+            registros = registros.filter(r => r.id !== id);
+            
+            // Salva a nova lista no dispositivo
+            localStorage.setItem('registrosCuidados', JSON.stringify(registros));
+            
+            // Atualiza a tela de histórico imediatamente
+            abrirHistorico();
+            
+            // Mostra mensagem visual de sucesso
+            const msg = document.getElementById('mensagem');
+            msg.innerText = "🗑️ Registro excluído com sucesso!";
+            msg.style.display = 'block';
+            window.scrollTo(0, 0); 
+            setTimeout(() => { msg.style.display = 'none'; }, 3000);
+        }
+    }
+
     function prepararResumo() {
         const form = document.getElementById('formTurno');
         const formData = new FormData(form);
@@ -466,7 +484,6 @@
         const configTurno = estruturaTurnos[turnoAtual];
         dadosTemporarios.turnoFormatado = `${configTurno.icon} ${configTurno.titulo}`;
 
-        // Se for edição, mantém a data/hora original no resumo visual, senão usa atual
         let textoDataHora = "";
         if (idEdicaoAtual) {
             const regOriginal = registros.find(r => r.id === idEdicaoAtual);
@@ -511,16 +528,14 @@
 
     function salvarDefinitivo() {
         if (idEdicaoAtual) {
-            // ATUALIZAR REGISTRO EXISTENTE
             const index = registros.findIndex(r => r.id === idEdicaoAtual);
             if (index !== -1) {
-                registros[index].dados = dadosTemporarios; // Atualiza apenas os dados, mantém data/hora original
+                registros[index].dados = dadosTemporarios; 
             }
             localStorage.setItem('registrosCuidados', JSON.stringify(registros));
-            idEdicaoAtual = null; // Limpa o modo de edição
-            navegar('historico'); // Volta pro histórico para ver a alteração
+            idEdicaoAtual = null; 
+            navegar('historico'); 
         } else {
-            // CRIAR NOVO REGISTRO
             const dataAtual = new Date();
             const registroFinal = {
                 id: Date.now(),
@@ -536,7 +551,6 @@
             navegar('menu');
         }
 
-        // Exibir mensagem de sucesso
         const msg = document.getElementById('mensagem');
         msg.innerText = "✨ Registro salvo com sucesso!";
         msg.style.display = 'block';
@@ -584,10 +598,11 @@
                     htmlCard += `<div class="resumo-obs" style="margin-top:0; font-size:0.95rem; padding:10px;">"${reg.dados.Observacoes}"</div>`;
                 }
                 
-                // ADICIONADO BOTÃO DE EDITAR NO FINAL DO CARD
+                // BOTÕES DE EXCLUIR E EDITAR
                 htmlCard += `
-                    <div style="display: flex; justify-content: flex-end; margin-top: 15px; padding-top: 12px; border-top: 1px solid #f1f5f9;">
-                        <button type="button" class="btn-editar" onclick="editarRegistro(${reg.id})">✏️ Editar Registro</button>
+                    <div class="botoes-acao-card">
+                        <button type="button" class="btn-excluir" onclick="excluirRegistro(${reg.id})">🗑️ Excluir</button>
+                        <button type="button" class="btn-editar" onclick="editarRegistro(${reg.id})">✏️ Editar</button>
                     </div>
                 </div></div>`;
                 container.innerHTML += htmlCard;
