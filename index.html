@@ -28,21 +28,52 @@
 
         .header {
             background: var(--primary-gradient); 
-            padding: 20px 15px; text-align: center;
             box-shadow: 0 4px 12px rgba(121, 40, 202, 0.2); 
             position: sticky; top: 0; z-index: 10;
-            display: flex; align-items: center; justify-content: center;
+        }
+
+        .header-inner {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 75px;
+        }
+
+        .header-left, .header-right {
+            width: 85px; 
+            display: flex;
+            align-items: center;
         }
         
+        .header-left { justify-content: flex-start; }
+        .header-right { justify-content: flex-end; }
+
+        .header-center {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            text-align: center;
+        }
+
         #btnVoltarTopo {
-            display: none; position: absolute; left: 15px; 
+            display: none; 
             background: rgba(255,255,255,0.2); border: none; border-radius: 8px;
-            color: white; font-size: 1.2rem; padding: 8px 12px; 
-            cursor: pointer; transition: 0.2s;
+            color: white; font-size: 1rem; padding: 8px 12px; 
+            cursor: pointer; transition: 0.2s; font-weight: bold;
+            white-space: nowrap;
         }
         #btnVoltarTopo:active { background: rgba(255,255,255,0.4); }
 
-        .header h1 { color: white; font-size: 1.5rem; margin: 0; display: flex; align-items: center; gap: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.2);}
+        .header h1 { 
+            color: white; font-size: 1.4rem; margin: 0; 
+            display: flex; align-items: center; justify-content: center; gap: 8px; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            line-height: 1.2;
+            cursor: pointer;
+        }
         
         .app-container { max-width: 600px; margin: 0 auto; padding: 15px; }
         
@@ -70,13 +101,15 @@
         .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--primary-light); }
         .card-header h2 { margin: 0; font-size: 1.4rem; color: var(--primary-color); }
         
-        .item-group { display: flex; flex-direction: column; padding: 15px 0; border-bottom: 1px dashed var(--border); gap: 10px; }
+        .item-group { display: flex; flex-direction: column; padding: 18px 0; border-bottom: 1px dashed var(--border); gap: 10px; }
         .item-group:last-child { border-bottom: none; }
-        .item-label { font-weight: 600; font-size: 1.1rem; color: #4a044e; }
+        
+        /* FONTE MAIOR PARA OS MEDICAMENTOS */
+        .item-label { font-weight: 700; font-size: 1.4rem; color: #4a044e; line-height: 1.3; margin-bottom: 5px; }
         
         select, input[type="text"], input[type="number"], textarea {
             padding: 16px; border: 2px solid #fdf4ff; border-radius: 12px; 
-            font-size: 1.1rem; background-color: #faf5ff; width: 100%; color: var(--text-main);
+            font-size: 1.15rem; background-color: #faf5ff; width: 100%; color: var(--text-main);
         }
         select:focus, input:focus, textarea:focus {
             outline: none; border-color: var(--accent-pink); background-color: white;
@@ -88,7 +121,7 @@
         .vitals-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .vitals-grid label { font-size: 1rem; color: #701a75; font-weight: 600; margin-bottom: 8px; display: block;}
         .pa-group { display: flex; align-items: center; gap: 12px; }
-        .pa-group input { text-align: center; }
+        .pa-group input { text-align: center; font-size: 1.2rem; font-weight: bold;}
 
         .acoes-container { display: flex; flex-direction: column; gap: 12px; }
         button { width: 100%; padding: 20px; border: none; border-radius: 14px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.2s;}
@@ -99,6 +132,10 @@
         .btn-voltar { background-color: white; color: var(--text-muted); border: 2px solid var(--border); }
         .btn-voltar:active { background-color: #f8fafc; }
         
+        /* BOTÃO DE EDITAR NO HISTÓRICO */
+        .btn-editar { width: auto; padding: 10px 15px; background-color: #f8fafc; color: var(--primary-color); border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 15px;}
+        .btn-editar:active { background-color: #e2e8f0; }
+
         .resumo-papel {
             background: white; padding: 30px; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             background-image: linear-gradient(#fdf2f8 1px, transparent 1px); background-size: 100% 32px;
@@ -117,8 +154,8 @@
         .registro-responsavel { font-size: 0.95rem; color: var(--accent-pink); font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 5px; background: #fdf2f8; padding: 8px; border-radius: 8px;}
         .registro-corpo { font-size: 1rem; color: #334155; }
         
-        .med-lista { margin-top: 8px; margin-bottom: 12px; font-size: 0.95rem; line-height: 1.5; color: #475569; }
-        .med-lista div { margin-bottom: 5px; padding-left: 10px; border-left: 2px solid #e2e8f0; }
+        .med-lista { margin-top: 8px; margin-bottom: 12px; font-size: 1.05rem; line-height: 1.6; color: #475569; }
+        .med-lista div { margin-bottom: 8px; padding-left: 10px; border-left: 3px solid #e2e8f0; }
 
         .btn-exportar { background-color: #f1f5f9; color: #333; border: 2px solid #cbd5e1; margin-top: 25px;}
         
@@ -129,8 +166,15 @@
 <body>
 
 <div class="header">
-    <button id="btnVoltarTopo" onclick="voltarNavegacao()">⬅️ Voltar</button>
-    <h1 onclick="navegar('menu')" style="cursor:pointer;">📋 Caderno de Cuidados</h1>
+    <div class="header-inner">
+        <div class="header-left">
+            <button id="btnVoltarTopo" onclick="voltarNavegacao()">⬅️ Voltar</button>
+        </div>
+        <div class="header-center">
+            <h1 onclick="navegar('menu')">📋 Caderno de Cuidados</h1>
+        </div>
+        <div class="header-right"></div>
+    </div>
 </div>
 
 <div class="app-container">
@@ -173,7 +217,7 @@
             </div>
 
             <div class="acoes-container">
-                <button type="button" class="btn-primary" onclick="prepararResumo()">👁️ Revisar antes de Salvar</button>
+                <button type="button" id="btnRevisar" class="btn-primary" onclick="prepararResumo()">👁️ Revisar antes de Salvar</button>
             </div>
         </form>
     </div>
@@ -198,6 +242,7 @@
 <script>
     let turnoAtual = '';
     let telaAnterior = 'menu';
+    let idEdicaoAtual = null; // Variável para controlar se estamos editando um registro existente
     let dadosTemporarios = {};
     let registros = JSON.parse(localStorage.getItem('registrosCuidados')) || [];
 
@@ -259,12 +304,13 @@
         const telaAtual = document.querySelector('.tela.ativa').id.replace('tela-', '');
         if (telaAtual === 'resumo') {
             navegar('formulario');
+        } else if (telaAtual === 'formulario' && idEdicaoAtual) {
+            navegar('historico'); // Se estava editando e cancelou, volta pro histórico
         } else {
             navegar('menu');
         }
     }
 
-    // Função que verifica se o "Outro" foi selecionado para exibir o campo de texto
     function verificarOutroResponsavel() {
         const select = document.getElementById('selectResponsavel');
         const inputOutro = document.getElementById('inputOutroResponsavel');
@@ -274,17 +320,19 @@
             inputOutro.focus();
         } else {
             inputOutro.style.display = 'none';
-            inputOutro.value = ''; // Limpa o campo se a pessoa mudar de ideia
+            inputOutro.value = ''; 
         }
     }
 
-    function abrirTurno(turno) {
-        turnoAtual = turno;
+    // Função auxiliar para gerar os campos do formulário
+    function renderizarCamposFormulario(turno) {
         const config = estruturaTurnos[turno];
         
-        let html = `<div class="card-header" style="border-bottom-color: ${config.color};"><span style="font-size:1.8rem; margin-right:5px;">${config.icon}</span> <h2 style="color: ${config.color};">${config.titulo}</h2></div>`;
+        // Se estiver editando, mostra aviso no título
+        let tituloDisplay = idEdicaoAtual ? `Editando ${config.titulo}` : config.titulo;
 
-        // NOVO CAMPO: Responsável com Select e Input para "Outro"
+        let html = `<div class="card-header" style="border-bottom-color: ${config.color};"><span style="font-size:1.8rem; margin-right:5px;">${config.icon}</span> <h2 style="color: ${config.color};">${tituloDisplay}</h2></div>`;
+
         html += `
         <div class="item-group" style="background: var(--primary-light); padding: 18px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #d8b4fe;">
             <label style="font-weight: bold; color: var(--primary-color); display: block; margin-bottom: 8px; font-size: 1.15rem;">👤 Quem está registrando?</label>
@@ -330,7 +378,62 @@
         }
 
         document.getElementById('card-conteudo').innerHTML = html;
+    }
+
+    // Abrir um Novo Turno do Zero
+    function abrirTurno(turno) {
+        idEdicaoAtual = null; // Garante que é um registro novo
+        turnoAtual = turno;
+        
+        renderizarCamposFormulario(turno);
+        
         document.getElementById('formTurno').reset();
+        document.getElementById('btnRevisar').innerHTML = "👁️ Revisar antes de Salvar";
+        navegar('formulario');
+    }
+
+    // Carregar um turno existente para Edição
+    function editarRegistro(id) {
+        const index = registros.findIndex(r => r.id === id);
+        if (index === -1) return;
+        
+        const reg = registros[index];
+        idEdicaoAtual = id; // Marca qual ID estamos alterando
+        
+        // Descobre qual turno é baseado no título salvo
+        turnoAtual = Object.keys(estruturaTurnos).find(k => estruturaTurnos[k].titulo === reg.turno);
+        
+        renderizarCamposFormulario(turnoAtual);
+        
+        // Preencher com os dados salvos
+        const dados = reg.dados;
+        
+        const selectResp = document.getElementById('selectResponsavel');
+        const inputOutro = document.getElementById('inputOutroResponsavel');
+        
+        if (dados.Responsavel === 'Naldo' || dados.Responsavel === 'Gê') {
+            selectResp.value = dados.Responsavel;
+        } else if (dados.Responsavel) {
+            selectResp.value = 'Outro';
+            inputOutro.style.display = 'block';
+            inputOutro.value = dados.Responsavel;
+        }
+        
+        estruturaTurnos[turnoAtual].medicamentos.forEach(med => {
+            const field = document.querySelector(`select[name="${med.id}"]`);
+            if (field && dados[med.id]) field.value = dados[med.id];
+        });
+        
+        if(estruturaTurnos[turnoAtual].sinaisVitais) {
+            if(dados.PAS) document.querySelector(`input[name="PAS"]`).value = dados.PAS;
+            if(dados.PAD) document.querySelector(`input[name="PAD"]`).value = dados.PAD;
+            if(dados.Pulso) document.querySelector(`input[name="Pulso"]`).value = dados.Pulso;
+            if(dados.Oximetria) document.querySelector(`input[name="Oximetria"]`).value = dados.Oximetria;
+        }
+        
+        document.getElementById('campoObservacoes').value = dados.Observacoes || '';
+        
+        document.getElementById('btnRevisar').innerHTML = "👁️ Revisar Alterações";
         navegar('formulario');
     }
 
@@ -339,7 +442,6 @@
         const formData = new FormData(form);
         dadosTemporarios = Object.fromEntries(formData.entries());
         
-        // VALIDAÇÃO DO RESPONSÁVEL
         const selectResp = document.getElementById('selectResponsavel').value;
         const inputOutro = document.getElementById('inputOutroResponsavel').value;
         let nomeResponsavel = '';
@@ -359,16 +461,22 @@
             nomeResponsavel = selectResp;
         }
 
-        // Salvar o nome correto nos dados
         dadosTemporarios.Responsavel = nomeResponsavel;
 
         const configTurno = estruturaTurnos[turnoAtual];
         dadosTemporarios.turnoFormatado = `${configTurno.icon} ${configTurno.titulo}`;
 
-        const dataAtual = new Date();
-        const dataFormatada = dataAtual.toLocaleDateString('pt-BR');
+        // Se for edição, mantém a data/hora original no resumo visual, senão usa atual
+        let textoDataHora = "";
+        if (idEdicaoAtual) {
+            const regOriginal = registros.find(r => r.id === idEdicaoAtual);
+            textoDataHora = `${regOriginal.data} às ${regOriginal.hora} (Editado)`;
+        } else {
+            const dataAtual = new Date();
+            textoDataHora = dataAtual.toLocaleDateString('pt-BR');
+        }
         
-        let html = `<h3>Resumo - ${dataFormatada}<br><span style="color:${configTurno.color};">${dadosTemporarios.turnoFormatado}</span></h3>`;
+        let html = `<h3>Resumo - ${textoDataHora}<br><span style="color:${configTurno.color};">${dadosTemporarios.turnoFormatado}</span></h3>`;
 
         html += `<div class="resumo-secao">Responsável:</div>`;
         html += `<div class="resumo-item"><span>Preparado por:</span> <span style="color: var(--accent-pink);">${dadosTemporarios.Responsavel}</span></div>`;
@@ -402,22 +510,35 @@
     }
 
     function salvarDefinitivo() {
-        const dataAtual = new Date();
-        const registroFinal = {
-            id: Date.now(),
-            data: dataAtual.toLocaleDateString('pt-BR'),
-            hora: dataAtual.toLocaleTimeString('pt-BR').substring(0, 5),
-            turno: estruturaTurnos[turnoAtual].titulo,
-            icon: estruturaTurnos[turnoAtual].icon,
-            color: estruturaTurnos[turnoAtual].color,
-            dados: dadosTemporarios
-        };
+        if (idEdicaoAtual) {
+            // ATUALIZAR REGISTRO EXISTENTE
+            const index = registros.findIndex(r => r.id === idEdicaoAtual);
+            if (index !== -1) {
+                registros[index].dados = dadosTemporarios; // Atualiza apenas os dados, mantém data/hora original
+            }
+            localStorage.setItem('registrosCuidados', JSON.stringify(registros));
+            idEdicaoAtual = null; // Limpa o modo de edição
+            navegar('historico'); // Volta pro histórico para ver a alteração
+        } else {
+            // CRIAR NOVO REGISTRO
+            const dataAtual = new Date();
+            const registroFinal = {
+                id: Date.now(),
+                data: dataAtual.toLocaleDateString('pt-BR'),
+                hora: dataAtual.toLocaleTimeString('pt-BR').substring(0, 5),
+                turno: estruturaTurnos[turnoAtual].titulo,
+                icon: estruturaTurnos[turnoAtual].icon,
+                color: estruturaTurnos[turnoAtual].color,
+                dados: dadosTemporarios
+            };
+            registros.unshift(registroFinal); 
+            localStorage.setItem('registrosCuidados', JSON.stringify(registros));
+            navegar('menu');
+        }
 
-        registros.unshift(registroFinal); 
-        localStorage.setItem('registrosCuidados', JSON.stringify(registros));
-
-        navegar('menu');
+        // Exibir mensagem de sucesso
         const msg = document.getElementById('mensagem');
+        msg.innerText = "✨ Registro salvo com sucesso!";
         msg.style.display = 'block';
         window.scrollTo(0, 0); 
         setTimeout(() => { msg.style.display = 'none'; }, 3500);
@@ -432,36 +553,14 @@
         } else {
             registros.forEach(reg => {
                 let resumoMed = '';
+                const configMeds = estruturaTurnos[Object.keys(estruturaTurnos).find(k => estruturaTurnos[k].titulo === reg.turno)].medicamentos;
                 
-                // Encontra a configuração do turno com segurança
-                const chaveTurno = Object.keys(estruturaTurnos).find(k => estruturaTurnos[k].titulo === reg.turno);
-                
-                if (chaveTurno) {
-                    const configMeds = estruturaTurnos[chaveTurno].medicamentos;
-                    configMeds.forEach(med => {
-                        // Removemos a trava dos emojis. Agora mostra o que estiver salvo ou "Sem registro"
-                        const valor = reg.dados[med.id] || 'Sem registro';
-                        resumoMed += `<div><strong>${med.nome}:</strong> ${valor}</div>`;
-                    });
-                }
-
-                // --- CORREÇÃO: Bloco adicionado para puxar os Sinais Vitais ---
-                let resumoVitais = '';
-                if (reg.dados.PAS || reg.dados.PAD || reg.dados.Pulso || reg.dados.Oximetria) {
-                    resumoVitais += `<div style="font-weight:bold; margin-top: 12px; margin-bottom: 5px; color: #701a75;">Sinais Vitais:</div>`;
-                    resumoVitais += `<div class="med-lista" style="background: #faf5ff; padding: 10px; border-radius: 8px;">`;
-                    if (reg.dados.PAS || reg.dados.PAD) {
-                        resumoVitais += `<div><strong>Pressão:</strong> ${reg.dados.PAS || '?'} x ${reg.dados.PAD || '?'}</div>`;
+                configMeds.forEach(med => {
+                    const valor = reg.dados[med.id];
+                    if(valor && (valor.includes('✅') || valor.includes('⚠️') || valor.includes('❌'))) {
+                        resumoMed += `<div><strong>${med.nome}:</strong> ${valor.split(' ')[0]}</div>`;
                     }
-                    if (reg.dados.Pulso) {
-                        resumoVitais += `<div><strong>Pulso:</strong> ${reg.dados.Pulso} bpm</div>`;
-                    }
-                    if (reg.dados.Oximetria) {
-                        resumoVitais += `<div><strong>Oximetria:</strong> ${reg.dados.Oximetria}%</div>`;
-                    }
-                    resumoVitais += `</div>`;
-                }
-                // ---------------------------------------------------------------
+                });
 
                 let htmlCard = `
                 <div class="registro-card" style="border-left-color: ${reg.color || 'var(--primary-color)'};">
@@ -475,19 +574,22 @@
                     </div>
 
                     <div class="registro-corpo">
-                        <div style="font-weight:bold; margin-bottom: 5px; color: #701a75;">Medicamentos:</div>
+                        <div style="font-weight:bold; margin-bottom: 5px;">Medicamentos:</div>
                         <div class="med-lista">
                             ${resumoMed || '<span style="color:#999;font-style:italic;">Nenhum medicado</span>'}
                         </div>
-                        
-                        ${resumoVitais}
                 `;
 
                 if(reg.dados.Observacoes && reg.dados.Observacoes.trim() !== '') {
-                    htmlCard += `<div class="resumo-obs" style="margin-top:10px; font-size:0.95rem; padding:10px;">"${reg.dados.Observacoes}"</div>`;
+                    htmlCard += `<div class="resumo-obs" style="margin-top:0; font-size:0.95rem; padding:10px;">"${reg.dados.Observacoes}"</div>`;
                 }
                 
-                htmlCard += `</div></div>`;
+                // ADICIONADO BOTÃO DE EDITAR NO FINAL DO CARD
+                htmlCard += `
+                    <div style="display: flex; justify-content: flex-end; margin-top: 15px; padding-top: 12px; border-top: 1px solid #f1f5f9;">
+                        <button type="button" class="btn-editar" onclick="editarRegistro(${reg.id})">✏️ Editar Registro</button>
+                    </div>
+                </div></div>`;
                 container.innerHTML += htmlCard;
             });
         }
