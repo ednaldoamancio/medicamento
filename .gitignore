@@ -1,0 +1,7 @@
+# Arquivos do sistema operacional (Mac/Windows)
+.DS_Store
+Thumbs.db
+
+# Pastas de editores de código (como VS Code)
+.vscode/
+.idea/
