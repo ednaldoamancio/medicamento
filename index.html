@@ -281,7 +281,7 @@
                 { nome: "Atorvastatina 40mg", id: "Atorvastatina" },
                 { nome: "AAS 100mg", id: "AAS" }
             ],
-            sinaisVitais: true // CORRIGIDO: Sinais Vitais agora ativados para a Noite!
+            sinaisVitais: true 
         }
     };
 
@@ -571,6 +571,25 @@
                     }
                 });
 
+                // LÓGICA NOVA: Extraindo os Sinais Vitais para mostrar no Histórico
+                let resumoSinais = '';
+                const pas = reg.dados.PAS;
+                const pad = reg.dados.PAD;
+                const pulso = reg.dados.Pulso;
+                const oxi = reg.dados.Oximetria;
+
+                if (pas || pad || pulso || oxi) {
+                    resumoSinais += `<div style="font-weight:bold; margin-top: 15px; margin-bottom: 5px;">Sinais Vitais:</div>`;
+                    resumoSinais += `<div class="med-lista">`;
+                    if (pas || pad) {
+                        const paText = (pas && pad) ? `${pas}x${pad}` : `${pas||'?'}x${pad||'?'}`;
+                        resumoSinais += `<div><strong>Pressão:</strong> ${paText}</div>`;
+                    }
+                    if (pulso) resumoSinais += `<div><strong>Pulso:</strong> ${pulso} bpm</div>`;
+                    if (oxi) resumoSinais += `<div><strong>Oximetria:</strong> ${oxi}%</div>`;
+                    resumoSinais += `</div>`;
+                }
+
                 let htmlCard = `
                 <div class="registro-card" style="border-left-color: ${reg.color || 'var(--primary-color)'};">
                     <div class="registro-header" style="color: ${reg.color || 'var(--primary-color)'}; border-bottom-color: ${reg.color ? reg.color + '22' : 'var(--primary-light)'};">
@@ -587,7 +606,8 @@
                         <div class="med-lista">
                             ${resumoMed || '<span style="color:#999;font-style:italic;">Nenhum medicado</span>'}
                         </div>
-                `;
+                        
+                        ${resumoSinais} `;
 
                 if(reg.dados.Observacoes && reg.dados.Observacoes.trim() !== '') {
                     htmlCard += `<div class="resumo-obs" style="margin-top:0; font-size:0.95rem; padding:10px;">"${reg.dados.Observacoes}"</div>`;
