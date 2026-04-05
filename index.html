@@ -20,7 +20,7 @@
             --tarde: #a1887f; 
             --noite: #7986cb; 
             --success: #10b981;
-            --danger: #ef4444; /* Cor vermelha para exclusão */
+            --danger: #ef4444; 
         }
         
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -281,7 +281,7 @@
                 { nome: "Atorvastatina 40mg", id: "Atorvastatina" },
                 { nome: "AAS 100mg", id: "AAS" }
             ],
-            sinaisVitais: false
+            sinaisVitais: true // CORRIGIDO: Sinais Vitais agora ativados para a Noite!
         }
     };
 
@@ -434,19 +434,14 @@
         navegar('formulario');
     }
 
-    // NOVA FUNÇÃO: Excluir Registro
     function excluirRegistro(id) {
         if(confirm("⚠️ Tem certeza que deseja excluir este registro?\n\nEsta ação não pode ser desfeita.")) {
-            // Remove o registro da lista
             registros = registros.filter(r => r.id !== id);
             
-            // Salva a nova lista no dispositivo
             localStorage.setItem('registrosCuidados', JSON.stringify(registros));
             
-            // Atualiza a tela de histórico imediatamente
             abrirHistorico();
             
-            // Mostra mensagem visual de sucesso
             const msg = document.getElementById('mensagem');
             msg.innerText = "🗑️ Registro excluído com sucesso!";
             msg.style.display = 'block';
@@ -598,7 +593,6 @@
                     htmlCard += `<div class="resumo-obs" style="margin-top:0; font-size:0.95rem; padding:10px;">"${reg.dados.Observacoes}"</div>`;
                 }
                 
-                // BOTÕES DE EXCLUIR E EDITAR
                 htmlCard += `
                     <div class="botoes-acao-card">
                         <button type="button" class="btn-excluir" onclick="excluirRegistro(${reg.id})">🗑️ Excluir</button>
