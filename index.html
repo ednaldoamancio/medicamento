@@ -5,25 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Caderno de Cuidados</title>
 
-    <!-- ========== ÍCONES E PWA (NOVO) ========== -->
-    <!-- Favicon para abas de navegadores (Chrome, Edge, Firefox) -->
-    <link rel="icon" type="image/png" sizes="32x32" href="1784344039065.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="1784344039065.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="1784344039065.png">
+    <!-- ✅ ÍCONES (agora o Chrome reconhece corretamente) -->
+    <link rel="icon" type="image/png" href="1784344039065.png">
+    <link rel="apple-touch-icon" href="1784344039065.png">
     
-    <!-- Ícone para tela inicial do iPhone/iPad -->
-    <link rel="apple-touch-icon" sizes="180x180" href="1784344039065.png">
+    <!-- ✅ MANIFESTO REAL (agora funciona instalação) -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- ✅ Cores do app -->
+    <meta name="theme-color" content="#7928ca">
+    <meta name="msapplication-TileColor" content="#7928ca">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Cuidados">
-    
-    <!-- Cor da barra de endereço no Android -->
-    <meta name="theme-color" content="#7928ca">
-    <meta name="msapplication-TileColor" content="#7928ca">
-    
-    <!-- Manifesto do PWA (torna instalável) -->
-    <link rel="manifest" id="pwaManifest">
-    <!-- ======================================== -->
 
     <style>
         :root {
@@ -89,18 +83,17 @@
         }
         #btnVoltarTopo:active { background: rgba(255,255,255,0.4); }
 
-        /* Botão Instalar App (NOVO) */
         #btnInstalarApp {
             display: none;
             background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5);
-            border-radius: 8px; color: white; font-size: 0.85rem; padding: 8px 10px;
+            border-radius: 8px; color: white; font-size: 0.8rem; padding: 8px 8px;
             cursor: pointer; font-weight: bold; transition: 0.2s;
         }
         #btnInstalarApp:active { background: rgba(255,255,255,0.45); }
 
         .header h1 { 
-            color: white; font-size: 1.4rem; margin: 0; 
-            display: flex; align-items: center; justify-content: center; gap: 8px; 
+            color: white; font-size: 1.3rem; margin: 0; 
+            display: flex; align-items: center; justify-content: center; gap: 6px; 
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
             line-height: 1.2;
             cursor: pointer;
@@ -162,7 +155,6 @@
         .btn-voltar { background-color: white; color: var(--text-muted); border: 2px solid var(--border); }
         .btn-voltar:active { background-color: #f8fafc; }
         
-        /* BOTÕES DE AÇÃO NO HISTÓRICO */
         .botoes-acao-card { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
         .btn-editar { width: auto; padding: 10px 15px; background-color: #f8fafc; color: var(--primary-color); border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;}
         .btn-editar:active { background-color: #e2e8f0; }
@@ -194,6 +186,19 @@
         
         #mensagem { text-align: center; color: white; background: var(--primary-gradient); padding: 18px; font-weight: bold; border-radius: 12px; margin-bottom: 20px; display: none; box-shadow: 0 4px 10px rgba(121, 40, 202, 0.3); animation: slideDown 0.4s ease; }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* ✅ Mensagem de erro de instalação */
+        #erroInstalacao {
+            display: none;
+            background: #fff1f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -207,13 +212,13 @@
             <h1 onclick="navegar('menu')">📋 Caderno de Cuidados</h1>
         </div>
         <div class="header-right">
-            <!-- Botão para instalar o app (aparece automaticamente quando possível) -->
-            <button id="btnInstalarApp">⬇️ Instalar App</button>
+            <button id="btnInstalarApp">⬇️ Instalar</button>
         </div>
     </div>
 </div>
 
 <div class="app-container">
+    <div id="erroInstalacao"></div>
     <div id="mensagem">✨ Registro salvo com sucesso!</div>
 
     <div id="tela-menu" class="tela ativa">
@@ -320,49 +325,31 @@
 
     function navegar(telaId) {
         const telaAtiva = document.querySelector('.tela.ativa');
-        if (telaAtiva) {
-            telaAnterior = telaAtiva.id.replace('tela-', '');
-        }
+        if (telaAtiva) telaAnterior = telaAtiva.id.replace('tela-', '');
 
         document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
         document.getElementById(`tela-${telaId}`).classList.add('ativa');
         window.scrollTo(0, 0);
 
-        const btnVoltar = document.getElementById('btnVoltarTopo');
-        if (telaId === 'menu') {
-            btnVoltar.style.display = 'none';
-        } else {
-            btnVoltar.style.display = 'block';
-        }
+        document.getElementById('btnVoltarTopo').style.display = telaId === 'menu' ? 'none' : 'block';
     }
 
     function voltarNavegacao() {
         const telaAtual = document.querySelector('.tela.ativa').id.replace('tela-', '');
-        if (telaAtual === 'resumo') {
-            navegar('formulario');
-        } else if (telaAtual === 'formulario' && idEdicaoAtual) {
-            navegar('historico'); 
-        } else {
-            navegar('menu');
-        }
+        if (telaAtual === 'resumo') navegar('formulario');
+        else if (telaAtual === 'formulario' && idEdicaoAtual) navegar('historico'); 
+        else navegar('menu');
     }
 
     function verificarOutroResponsavel() {
-        const select = document.getElementById('selectResponsavel');
-        const inputOutro = document.getElementById('inputOutroResponsavel');
-        
-        if (select.value === 'Outro') {
-            inputOutro.style.display = 'block';
-            inputOutro.focus();
-        } else {
-            inputOutro.style.display = 'none';
-            inputOutro.value = ''; 
-        }
+        const s = document.getElementById('selectResponsavel');
+        const i = document.getElementById('inputOutroResponsavel');
+        if (s.value === 'Outro') { i.style.display = 'block'; i.focus(); }
+        else { i.style.display = 'none'; i.value = ''; }
     }
 
     function renderizarCamposFormulario(turno) {
         const config = estruturaTurnos[turno];
-        
         let tituloDisplay = idEdicaoAtual ? `Editando ${config.titulo}` : config.titulo;
 
         let html = `<div class="card-header" style="border-bottom-color: ${config.color};"><span style="font-size:1.8rem; margin-right:5px;">${config.icon}</span> <h2 style="color: ${config.color};">${tituloDisplay}</h2></div>`;
@@ -370,27 +357,23 @@
         html += `
         <div class="item-group" style="background: var(--primary-light); padding: 18px; border-radius: 12px; margin-bottom: 20px; border: 2px solid #d8b4fe;">
             <label style="font-weight: bold; color: var(--primary-color); display: block; margin-bottom: 8px; font-size: 1.15rem;">👤 Quem está registrando?</label>
-            
             <select id="selectResponsavel" onchange="verificarOutroResponsavel()" style="border-color: #c084fc; background: white; font-weight: bold; margin-bottom: 10px;">
                 <option value="">Selecione...</option>
                 <option value="Naldo">Naldo</option>
                 <option value="Gê">Gê</option>
                 <option value="Outro">Outro familiar...</option>
             </select>
-            
             <input type="text" id="inputOutroResponsavel" placeholder="Qual o seu nome?" style="display: none; border-color: #c084fc; background: white; margin-top: 5px;">
         </div>`;
 
         config.medicamentos.forEach(med => {
-            html += `
-            <div class="item-group"><span class="item-label">${med.nome}</span>
+            html += `<div class="item-group"><span class="item-label">${med.nome}</span>
                 <select name="${med.id}">
                     <option value="">Aguardando...</option>
                     <option value="✅ Medicado">✅ Medicado</option>
                     <option value="⚠️ Não dei">⚠️ Não dei</option>
                     <option value="❌ Acabou">❌ Acabou</option>
-                </select>
-            </div>`;
+                </select></div>`;
         });
 
         if(config.sinaisVitais) {
@@ -410,16 +393,13 @@
                 </div>
             </div>`;
         }
-
         document.getElementById('card-conteudo').innerHTML = html;
     }
 
     function abrirTurno(turno) {
         idEdicaoAtual = null; 
         turnoAtual = turno;
-        
         renderizarCamposFormulario(turno);
-        
         document.getElementById('formTurno').reset();
         document.getElementById('btnRevisar').innerHTML = "👁️ Revisar antes de Salvar";
         navegar('formulario');
@@ -428,41 +408,28 @@
     function editarRegistro(id) {
         const index = registros.findIndex(r => r.id === id);
         if (index === -1) return;
-        
         const reg = registros[index];
         idEdicaoAtual = id; 
-        
         turnoAtual = Object.keys(estruturaTurnos).find(k => estruturaTurnos[k].titulo === reg.turno);
-        
         renderizarCamposFormulario(turnoAtual);
-        
         const dados = reg.dados;
         
-        const selectResp = document.getElementById('selectResponsavel');
-        const inputOutro = document.getElementById('inputOutroResponsavel');
+        const sr = document.getElementById('selectResponsavel');
+        const io = document.getElementById('inputOutroResponsavel');
+        if (dados.Responsavel === 'Naldo' || dados.Responsavel === 'Gê') sr.value = dados.Responsavel;
+        else if (dados.Responsavel) { sr.value = 'Outro'; io.style.display='block'; io.value=dados.Responsavel; }
         
-        if (dados.Responsavel === 'Naldo' || dados.Responsavel === 'Gê') {
-            selectResp.value = dados.Responsavel;
-        } else if (dados.Responsavel) {
-            selectResp.value = 'Outro';
-            inputOutro.style.display = 'block';
-            inputOutro.value = dados.Responsavel;
-        }
-        
-        estruturaTurnos[turnoAtual].medicamentos.forEach(med => {
-            const field = document.querySelector(`select[name="${med.id}"]`);
-            if (field && dados[med.id]) field.value = dados[med.id];
+        estruturaTurnos[turnoAtual].medicamentos.forEach(m => {
+            const f = document.querySelector(`select[name="${m.id}"]`);
+            if (f && dados[m.id]) f.value = dados[m.id];
         });
         
         if(estruturaTurnos[turnoAtual].sinaisVitais) {
-            if(dados.PAS) document.querySelector(`input[name="PAS"]`).value = dados.PAS;
-            if(dados.PAD) document.querySelector(`input[name="PAD"]`).value = dados.PAD;
-            if(dados.Pulso) document.querySelector(`input[name="Pulso"]`).value = dados.Pulso;
-            if(dados.Oximetria) document.querySelector(`input[name="Oximetria"]`).value = dados.Oximetria;
+            ['PAS','PAD','Pulso','Oximetria'].forEach(c => {
+                if(dados[c]) document.querySelector(`input[name="${c}"]`).value = dados[c];
+            });
         }
-        
         document.getElementById('campoObservacoes').value = dados.Observacoes || '';
-        
         document.getElementById('btnRevisar').innerHTML = "👁️ Revisar Alterações";
         navegar('formulario');
     }
@@ -470,85 +437,50 @@
     function excluirRegistro(id) {
         if(confirm("⚠️ Tem certeza que deseja excluir este registro?\n\nEsta ação não pode ser desfeita.")) {
             registros = registros.filter(r => r.id !== id);
-            
             localStorage.setItem('registrosCuidados', JSON.stringify(registros));
-            
             abrirHistorico();
-            
-            const msg = document.getElementById('mensagem');
-            msg.innerText = "🗑️ Registro excluído com sucesso!";
-            msg.style.display = 'block';
-            window.scrollTo(0, 0); 
-            setTimeout(() => { msg.style.display = 'none'; }, 3000);
+            const m = document.getElementById('mensagem');
+            m.innerText = "🗑️ Registro excluído com sucesso!";
+            m.style.display = 'block';
+            setTimeout(() => m.style.display = 'none', 3000);
         }
     }
 
     function prepararResumo() {
         const form = document.getElementById('formTurno');
-        const formData = new FormData(form);
-        dadosTemporarios = Object.fromEntries(formData.entries());
+        dadosTemporarios = Object.fromEntries(new FormData(form).entries());
         
-        const selectResp = document.getElementById('selectResponsavel').value;
-        const inputOutro = document.getElementById('inputOutroResponsavel').value;
-        let nomeResponsavel = '';
+        const sr = document.getElementById('selectResponsavel').value;
+        const io = document.getElementById('inputOutroResponsavel').value;
+        if (sr === '') { alert("⚠️ Selecione quem está registrando."); document.getElementById('selectResponsavel').focus(); return; }
+        if (sr === 'Outro' && io.trim() === '') { alert("⚠️ Digite o nome."); io.focus(); return; }
+        dadosTemporarios.Responsavel = sr === 'Outro' ? io.trim() : sr;
 
-        if (selectResp === '') {
-            alert("⚠️ Atenção: Por favor, selecione seu nome no topo da página antes de prosseguir.");
-            document.getElementById('selectResponsavel').focus();
-            return;
-        } else if (selectResp === 'Outro') {
-            if (inputOutro.trim() === '') {
-                alert("⚠️ Atenção: Por favor, digite o seu nome.");
-                document.getElementById('inputOutroResponsavel').focus();
-                return;
-            }
-            nomeResponsavel = inputOutro.trim();
-        } else {
-            nomeResponsavel = selectResp;
-        }
+        const ct = estruturaTurnos[turnoAtual];
+        dadosTemporarios.turnoFormatado = `${ct.icon} ${ct.titulo}`;
 
-        dadosTemporarios.Responsavel = nomeResponsavel;
-
-        const configTurno = estruturaTurnos[turnoAtual];
-        dadosTemporarios.turnoFormatado = `${configTurno.icon} ${configTurno.titulo}`;
-
-        let textoDataHora = "";
-        if (idEdicaoAtual) {
-            const regOriginal = registros.find(r => r.id === idEdicaoAtual);
-            textoDataHora = `${regOriginal.data} às ${regOriginal.hora} (Editado)`;
-        } else {
-            const dataAtual = new Date();
-            textoDataHora = dataAtual.toLocaleDateString('pt-BR');
-        }
+        let tdh = idEdicaoAtual 
+            ? `${registros.find(r=>r.id===idEdicaoAtual).data} às ${registros.find(r=>r.id===idEdicaoAtual).hora} (Editado)` 
+            : new Date().toLocaleDateString('pt-BR');
         
-        let html = `<h3>Resumo - ${textoDataHora}<br><span style="color:${configTurno.color};">${dadosTemporarios.turnoFormatado}</span></h3>`;
-
-        html += `<div class="resumo-secao">Responsável:</div>`;
-        html += `<div class="resumo-item"><span>Preparado por:</span> <span style="color: var(--accent-pink);">${dadosTemporarios.Responsavel}</span></div>`;
-
+        let html = `<h3>Resumo - ${tdh}<br><span style="color:${ct.color};">${dadosTemporarios.turnoFormatado}</span></h3>`;
+        html += `<div class="resumo-secao">Responsável:</div><div class="resumo-item"><span>Preparado por:</span> <span style="color: var(--accent-pink);">${dadosTemporarios.Responsavel}</span></div>`;
         html += `<div class="resumo-secao">Medicações:</div>`;
-        configTurno.medicamentos.forEach(med => {
-            const valor = dadosTemporarios[med.id] || '-';
-            html += `<div class="resumo-item"><span>${med.nome}:</span> <span>${valor}</span></div>`;
-        });
+        ct.medicamentos.forEach(m => html += `<div class="resumo-item"><span>${m.nome}:</span> <span>${dadosTemporarios[m.id] || '-'}</span></div>`);
 
-        if(configTurno.sinaisVitais) {
-            const pas = dadosTemporarios.PAS;
-            const pad = dadosTemporarios.PAD;
-            const pa = (pas && pad) ? `${pas}x${pad}` : (pas || pad) ? `${pas||'?'}x${pad||'?'}` : '-';
-            
-            html += `<div class="resumo-secao">Sinais Vitais:</div>`;
-            html += `<div class="resumo-item"><span>Pressão Arterial:</span> <span>${pa}</span></div>`;
-            html += `<div class="resumo-item"><span>Pulso Cardíaco:</span> <span>${dadosTemporarios.Pulso ? dadosTemporarios.Pulso + ' bpm' : '-'}</span></div>`;
-            html += `<div class="resumo-item"><span>Oximetria:</span> <span>${dadosTemporarios.Oximetria ? dadosTemporarios.Oximetria + '%' : '-'}</span></div>`;
+        if(ct.sinaisVitais) {
+            const pas=dadosTemporarios.PAS, pad=dadosTemporarios.PAD;
+            const pa = (pas&&pad)?`${pas}x${pad}`:`${pas||'?'}x${pad||'?'}`;
+            html += `<div class="resumo-secao">Sinais Vitais:</div>
+                <div class="resumo-item"><span>Pressão:</span> <span>${pa}</span></div>
+                <div class="resumo-item"><span>Pulso:</span> <span>${dadosTemporarios.Pulso?dadosTemporarios.Pulso+' bpm':'-'}</span></div>
+                <div class="resumo-item"><span>Oximetria:</span> <span>${dadosTemporarios.Oximetria?dadosTemporarios.Oximetria+'%':'-'}</span></div>`;
         }
 
         html += `<div class="resumo-secao">Observações:</div>`;
-        if(dadosTemporarios.Observacoes && dadosTemporarios.Observacoes.trim() !== "") {
-            html += `<div class="resumo-obs">${dadosTemporarios.Observacoes}</div>`;
-        } else {
-            html += `<div class="resumo-obs" style="font-style:italic; background:#eee; color:#666; border-color:#ccc;">Nenhuma ocorrência relatada no turno.</div>`;
-        }
+        html += dadosTemporarios.Observacoes?.trim() 
+            ? `<div class="resumo-obs">${dadosTemporarios.Observacoes}</div>`
+            : `<div class="resumo-obs" style="font-style:italic; background:#eee; color:#666; border-color:#ccc;">Nenhuma ocorrência.</div>`;
 
         document.getElementById('conteudoResumo').innerHTML = html;
         navegar('resumo');
@@ -556,189 +488,154 @@
 
     function salvarDefinitivo() {
         if (idEdicaoAtual) {
-            const index = registros.findIndex(r => r.id === idEdicaoAtual);
-            if (index !== -1) {
-                registros[index].dados = dadosTemporarios; 
-            }
+            const i = registros.findIndex(r => r.id === idEdicaoAtual);
+            if (i !== -1) registros[i].dados = dadosTemporarios;
             localStorage.setItem('registrosCuidados', JSON.stringify(registros));
             idEdicaoAtual = null; 
             navegar('historico'); 
         } else {
-            const dataAtual = new Date();
-            const registroFinal = {
+            const d = new Date();
+            registros.unshift({
                 id: Date.now(),
-                data: dataAtual.toLocaleDateString('pt-BR'),
-                hora: dataAtual.toLocaleTimeString('pt-BR').substring(0, 5),
+                data: d.toLocaleDateString('pt-BR'),
+                hora: d.toLocaleTimeString('pt-BR').substring(0, 5),
                 turno: estruturaTurnos[turnoAtual].titulo,
                 icon: estruturaTurnos[turnoAtual].icon,
                 color: estruturaTurnos[turnoAtual].color,
                 dados: dadosTemporarios
-            };
-            registros.unshift(registroFinal); 
+            });
             localStorage.setItem('registrosCuidados', JSON.stringify(registros));
             navegar('menu');
         }
-
-        const msg = document.getElementById('mensagem');
-        msg.innerText = "✨ Registro salvo com sucesso!";
-        msg.style.display = 'block';
-        window.scrollTo(0, 0); 
-        setTimeout(() => { msg.style.display = 'none'; }, 3500);
+        const m = document.getElementById('mensagem');
+        m.innerText = "✨ Registro salvo com sucesso!";
+        m.style.display = 'block';
+        setTimeout(() => m.style.display = 'none', 3500);
     }
 
     function abrirHistorico() {
-        const container = document.getElementById('lista-historico');
-        container.innerHTML = '';
-
+        const c = document.getElementById('lista-historico');
+        c.innerHTML = '';
         if(registros.length === 0) {
-            container.innerHTML = '<div class="card" style="text-align:center; color:var(--text-muted); padding: 30px; background:#faf5ff;">📖 O caderno ainda está em branco.<br>Os registros aparecerão aqui.</div>';
+            c.innerHTML = '<div class="card" style="text-align:center; color:var(--text-muted); padding: 30px; background:#faf5ff;">📖 Caderno em branco.</div>';
         } else {
             registros.forEach(reg => {
-                let resumoMed = '';
-                const configMeds = estruturaTurnos[Object.keys(estruturaTurnos).find(k => estruturaTurnos[k].titulo === reg.turno)].medicamentos;
+                let rm = '', rs = '';
+                const cm = estruturaTurnos[Object.keys(estruturaTurnos).find(k=>estruturaTurnos[k].titulo===reg.turno)].medicamentos;
+                cm.forEach(m => { if(reg.dados[m.id]) rm += `<div><strong>${m.nome}:</strong> ${reg.dados[m.id].split(' ')[0]}</div>`; });
                 
-                configMeds.forEach(med => {
-                    const valor = reg.dados[med.id];
-                    if(valor && (valor.includes('✅') || valor.includes('⚠️') || valor.includes('❌'))) {
-                        resumoMed += `<div><strong>${med.nome}:</strong> ${valor.split(' ')[0]}</div>`;
-                    }
-                });
-
-                let resumoSinais = '';
-                const pas = reg.dados.PAS;
-                const pad = reg.dados.PAD;
-                const pulso = reg.dados.Pulso;
-                const oxi = reg.dados.Oximetria;
-
-                if (pas || pad || pulso || oxi) {
-                    resumoSinais += `<div style="font-weight:bold; margin-top: 15px; margin-bottom: 5px;">Sinais Vitais:</div>`;
-                    resumoSinais += `<div class="med-lista">`;
-                    if (pas || pad) {
-                        const paText = (pas && pad) ? `${pas}x${pad}` : `${pas||'?'}x${pad||'?'}`;
-                        resumoSinais += `<div><strong>Pressão:</strong> ${paText}</div>`;
-                    }
-                    if (pulso) resumoSinais += `<div><strong>Pulso:</strong> ${pulso} bpm</div>`;
-                    if (oxi) resumoSinais += `<div><strong>Oximetria:</strong> ${oxi}%</div>`;
-                    resumoSinais += `</div>`;
+                const pas=reg.dados.PAS, pad=reg.dados.PAD, p=reg.dados.Pulso, o=reg.dados.Oximetria;
+                if (pas||pad||p||o) {
+                    rs += `<div style="font-weight:bold; margin-top:15px;">Sinais Vitais:</div><div class="med-lista">`;
+                    if(pas||pad) rs += `<div><strong>PA:</strong> ${(pas&&pad)?`${pas}x${pad}`:`${pas||'?'}x${pad||'?'}`}</div>`;
+                    if(p) rs += `<div><strong>Pulso:</strong> ${p} bpm</div>`;
+                    if(o) rs += `<div><strong>Oxi:</strong> ${o}%</div>`;
+                    rs += `</div>`;
                 }
 
-                let htmlCard = `
-                <div class="registro-card" style="border-left-color: ${reg.color || 'var(--primary-color)'};">
-                    <div class="registro-header" style="color: ${reg.color || 'var(--primary-color)'}; border-bottom-color: ${reg.color ? reg.color + '22' : 'var(--primary-light)'};">
+                c.innerHTML += `
+                <div class="registro-card" style="border-left-color: ${reg.color||'var(--primary-color)'};">
+                    <div class="registro-header" style="color: ${reg.color||'var(--primary-color)'}; border-bottom-color: ${reg.color?reg.color+'22':'var(--primary-light)'};">
                         <span>${reg.data} às ${reg.hora}</span>
-                        <span>${reg.icon || ''} ${reg.turno}</span>
+                        <span>${reg.icon||''} ${reg.turno}</span>
                     </div>
-                    
-                    <div class="registro-responsavel">
-                        👤 Preparado por: ${reg.dados.Responsavel || 'Não informado'}
-                    </div>
-
+                    <div class="registro-responsavel">👤 ${reg.dados.Responsavel||'Não informado'}</div>
                     <div class="registro-corpo">
-                        <div style="font-weight:bold; margin-bottom: 5px;">Medicamentos:</div>
-                        <div class="med-lista">
-                            ${resumoMed || '<span style="color:#999;font-style:italic;">Nenhum medicado</span>'}
+                        <div style="font-weight:bold;">Medicamentos:</div>
+                        <div class="med-lista">${rm||'<span style="color:#999;font-style:italic;">Nenhum</span>'}</div>
+                        ${rs}
+                        ${reg.dados.Observacoes?.trim()?`<div class="resumo-obs" style="margin-top:0; font-size:0.95rem;">"${reg.dados.Observacoes}"</div>`:''}
+                        <div class="botoes-acao-card">
+                            <button class="btn-excluir" onclick="excluirRegistro(${reg.id})">🗑️ Excluir</button>
+                            <button class="btn-editar" onclick="editarRegistro(${reg.id})">✏️ Editar</button>
                         </div>
-                        
-                        ${resumoSinais} `;
-
-                if(reg.dados.Observacoes && reg.dados.Observacoes.trim() !== '') {
-                    htmlCard += `<div class="resumo-obs" style="margin-top:0; font-size:0.95rem; padding:10px;">"${reg.dados.Observacoes}"</div>`;
-                }
-                
-                htmlCard += `
-                    <div class="botoes-acao-card">
-                        <button type="button" class="btn-excluir" onclick="excluirRegistro(${reg.id})">🗑️ Excluir</button>
-                        <button type="button" class="btn-editar" onclick="editarRegistro(${reg.id})">✏️ Editar</button>
                     </div>
-                </div></div>`;
-                container.innerHTML += htmlCard;
+                </div>`;
             });
         }
         navegar('historico');
     }
 
     function exportarCSV() {
-        if (registros.length === 0) return alert("Sem dados para exportar.");
-        
-        let csvContent = "Data;Hora;Turno;Responsavel;Dados JSON (Bruto)\n";
-        registros.forEach(reg => {
-            let dadosString = JSON.stringify(reg.dados).replace(/"/g, '""');
-            let resp = reg.dados.Responsavel || 'N/A';
-            csvContent += `"${reg.data}";"${reg.hora}";"${reg.turno}";"${resp}";"${dadosString}"\n`;
+        if (!registros.length) return alert("Sem dados.");
+        let csv = "Data;Hora;Turno;Responsavel;Dados\n";
+        registros.forEach(r => {
+            csv += `"${r.data}";"${r.hora}";"${r.turno}";"${r.dados.Responsavel||''}";"${JSON.stringify(r.dados).replace(/"/g,'""')}"\n`;
         });
-
-        const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "historico_completo_tablet.csv";
-        link.style.display = "none";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const b = new Blob(["\uFEFF"+csv], {type:"text/csv;charset=utf-8"});
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(b);
+        a.download = "historico_cuidados.csv";
+        a.click();
     }
 
-    // ========== CÓDIGO PWA (NOVO) ==========
-    // 1. Cria o manifesto dinamicamente com sua imagem como ícone
-    (function criarManifesto() {
-        const manifesto = {
-            name: "Caderno de Cuidados",
-            short_name: "Cuidados",
-            description: "Controle de medicamentos e sinais vitais",
-            start_url: ".",
-            display: "standalone",
-            background_color: "#fdf2f8",
-            theme_color: "#7928ca",
-            orientation: "portrait",
-            icons: [
-                { src: "1784344039065.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
-                { src: "1784344039065.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
-            ]
-        };
-        const blob = new Blob([JSON.stringify(manifesto)], { type: "application/manifest+json" });
-        document.getElementById("pwaManifest").href = URL.createObjectURL(blob);
-    })();
+    // ==========================================
+    // ✅ SISTEMA DE INSTALAÇÃO CORRIGIDO
+    // ==========================================
+    const erroEl = document.getElementById('erroInstalacao');
+    const btnInstalar = document.getElementById('btnInstalarApp');
+    let promptInst = null;
 
-    // 2. Service Worker (obrigatório para instalação no Android)
-    const codigoSW = `
-        const CACHE = "caderno-cuidados-v1";
-        self.addEventListener("install", e => self.skipWaiting());
-        self.addEventListener("activate", e => e.waitUntil(clients.claim()));
-        self.addEventListener("fetch", e => {
-            e.respondWith(
-                caches.match(e.request).then(r => r || fetch(e.request).then(res => {
-                    const clonado = res.clone();
-                    caches.open(CACHE).then(c => c.put(e.request, clonado));
-                    return res;
-                }).catch(() => caches.match("/")))
-            );
+    // 1. Registra o Service Worker (arquivo real sw.js)
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log("✅ Service Worker OK"))
+                .catch(erro => {
+                    console.warn("⚠️ SW não carregou:", erro);
+                    erroEl.innerHTML = "💡 Dica: abra este site por um servidor (não como arquivo .html direto). Use o método manual abaixo se precisar.";
+                    erroEl.style.display = 'block';
+                });
         });
-    `;
-    if ("serviceWorker" in navigator) {
-        const swBlob = new Blob([codigoSW], { type: "application/javascript" });
-        navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
     }
 
-    // 3. Botão de instalação automático
-    let promptInstalacao = null;
-    const btnInstalar = document.getElementById("btnInstalarApp");
-
-    window.addEventListener("beforeinstallprompt", (e) => {
+    // 2. Mostra o botão quando o Chrome permitir
+    window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
-        promptInstalacao = e;
-        btnInstalar.style.display = "block"; // Mostra o botão
+        promptInst = e;
+        btnInstalar.style.display = 'block';
+        erroEl.style.display = 'none';
     });
 
-    btnInstalar.addEventListener("click", async () => {
-        if (!promptInstalacao) return;
-        await promptInstalacao.prompt();
-        promptInstalacao = null;
-        btnInstalar.style.display = "none";
+    // 3. Ao clicar em instalar - AGORA mostra ERRO se falhar
+    btnInstalar.addEventListener('click', async () => {
+        if (!promptInst) {
+            erroEl.innerHTML = "⚠️ Instalação automática não disponível. <strong>Toque nos 3 pontinhos do Chrome ➝ Adicionar à tela inicial</strong> (funciona 100%).";
+            erroEl.style.display = 'block';
+            return;
+        }
+        try {
+            const resultado = await promptInst.prompt();
+            console.log("Resposta instalação:", resultado.outcome);
+            
+            if (resultado.outcome === 'dismissed') {
+                erroEl.innerHTML = "Você cancelou. Se quiser tentar de novo, feche e abra o Chrome novamente.";
+                erroEl.style.display = 'block';
+            } else {
+                erroEl.innerHTML = "✅ App instalado! Procure o ícone rosa/roxo na sua tela inicial ou gaveta de apps.";
+                erroEl.style.display = 'block';
+                erroEl.style.background = '#f0fdf4';
+                erroEl.style.color = '#166534';
+                erroEl.style.borderColor = '#bbf7d0';
+            }
+            promptInst = null;
+            btnInstalar.style.display = 'none';
+        } catch (erro) {
+            console.error("❌ Erro instalação:", erro);
+            erroEl.innerHTML = `❌ Falha: ${erro.message || 'erro desconhecido'}.<br><strong>Use o método GARANTIDO:</strong> 3 pontinhos ➝ Adicionar à tela inicial.`;
+            erroEl.style.display = 'block';
+        }
     });
 
-    window.addEventListener("appinstalled", () => {
-        btnInstalar.style.display = "none";
+    // 4. Se já estiver instalado, esconde o botão
+    window.addEventListener('appinstalled', () => {
+        btnInstalar.style.display = 'none';
+        erroEl.innerHTML = "✅ App instalado com sucesso! Ícone na tela inicial.";
+        erroEl.style.display = 'block';
+        erroEl.style.background = '#f0fdf4';
+        erroEl.style.color = '#166534';
+        erroEl.style.borderColor = '#bbf7d0';
     });
-    // ======================================
 </script>
 
 </body>
