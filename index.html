@@ -4,6 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Caderno de Cuidados</title>
+
+    <!-- ========== ÍCONES E PWA (NOVO) ========== -->
+    <!-- Favicon para abas de navegadores (Chrome, Edge, Firefox) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="1784344039065.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="1784344039065.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="1784344039065.png">
+    
+    <!-- Ícone para tela inicial do iPhone/iPad -->
+    <link rel="apple-touch-icon" sizes="180x180" href="1784344039065.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Cuidados">
+    
+    <!-- Cor da barra de endereço no Android -->
+    <meta name="theme-color" content="#7928ca">
+    <meta name="msapplication-TileColor" content="#7928ca">
+    
+    <!-- Manifesto do PWA (torna instalável) -->
+    <link rel="manifest" id="pwaManifest">
+    <!-- ======================================== -->
+
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #ff0080 0%, #7928ca 100%);
@@ -67,6 +88,15 @@
             white-space: nowrap;
         }
         #btnVoltarTopo:active { background: rgba(255,255,255,0.4); }
+
+        /* Botão Instalar App (NOVO) */
+        #btnInstalarApp {
+            display: none;
+            background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 8px; color: white; font-size: 0.85rem; padding: 8px 10px;
+            cursor: pointer; font-weight: bold; transition: 0.2s;
+        }
+        #btnInstalarApp:active { background: rgba(255,255,255,0.45); }
 
         .header h1 { 
             color: white; font-size: 1.4rem; margin: 0; 
@@ -176,7 +206,10 @@
         <div class="header-center">
             <h1 onclick="navegar('menu')">📋 Caderno de Cuidados</h1>
         </div>
-        <div class="header-right"></div>
+        <div class="header-right">
+            <!-- Botão para instalar o app (aparece automaticamente quando possível) -->
+            <button id="btnInstalarApp">⬇️ Instalar App</button>
+        </div>
     </div>
 </div>
 
@@ -571,7 +604,6 @@
                     }
                 });
 
-                // LÓGICA NOVA: Extraindo os Sinais Vitais para mostrar no Histórico
                 let resumoSinais = '';
                 const pas = reg.dados.PAS;
                 const pad = reg.dados.PAD;
@@ -644,6 +676,69 @@
         link.click();
         document.body.removeChild(link);
     }
+
+    // ========== CÓDIGO PWA (NOVO) ==========
+    // 1. Cria o manifesto dinamicamente com sua imagem como ícone
+    (function criarManifesto() {
+        const manifesto = {
+            name: "Caderno de Cuidados",
+            short_name: "Cuidados",
+            description: "Controle de medicamentos e sinais vitais",
+            start_url: ".",
+            display: "standalone",
+            background_color: "#fdf2f8",
+            theme_color: "#7928ca",
+            orientation: "portrait",
+            icons: [
+                { src: "1784344039065.png", sizes: "192x192", type: "image/png", purpose: "any maskable" },
+                { src: "1784344039065.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
+            ]
+        };
+        const blob = new Blob([JSON.stringify(manifesto)], { type: "application/manifest+json" });
+        document.getElementById("pwaManifest").href = URL.createObjectURL(blob);
+    })();
+
+    // 2. Service Worker (obrigatório para instalação no Android)
+    const codigoSW = `
+        const CACHE = "caderno-cuidados-v1";
+        self.addEventListener("install", e => self.skipWaiting());
+        self.addEventListener("activate", e => e.waitUntil(clients.claim()));
+        self.addEventListener("fetch", e => {
+            e.respondWith(
+                caches.match(e.request).then(r => r || fetch(e.request).then(res => {
+                    const clonado = res.clone();
+                    caches.open(CACHE).then(c => c.put(e.request, clonado));
+                    return res;
+                }).catch(() => caches.match("/")))
+            );
+        });
+    `;
+    if ("serviceWorker" in navigator) {
+        const swBlob = new Blob([codigoSW], { type: "application/javascript" });
+        navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+    }
+
+    // 3. Botão de instalação automático
+    let promptInstalacao = null;
+    const btnInstalar = document.getElementById("btnInstalarApp");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        promptInstalacao = e;
+        btnInstalar.style.display = "block"; // Mostra o botão
+    });
+
+    btnInstalar.addEventListener("click", async () => {
+        if (!promptInstalacao) return;
+        await promptInstalacao.prompt();
+        promptInstalacao = null;
+        btnInstalar.style.display = "none";
+    });
+
+    window.addEventListener("appinstalled", () => {
+        btnInstalar.style.display = "none";
+    });
+    // ======================================
 </script>
 
 </body>
