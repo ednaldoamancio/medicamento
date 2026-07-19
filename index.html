@@ -524,37 +524,36 @@
         navegar('resumo');
     }
 
-    async function salvarDefinitivo() {
-        const d = new Date();
-        const dadosParaEnviar = {
-          data: d.toLocaleDateString('pt-BR'),
-          hora: d.toLocaleTimeString('pt-BR').substring(0, 5),
-          turno: estruturaTurnos[turnoAtual].titulo,
-          responsavel: dadosTemporarios.Responsavel,
-          ...dadosTemporarios
-        };
+  async function salvarDefinitivo() {
+  const d = new Date();
+  const dadosParaEnviar = {
+    data: d.toLocaleDateString('pt-BR'),
+    hora: d.toLocaleTimeString('pt-BR').substring(0, 5),
+    turno: estruturaTurnos[turnoAtual].titulo,
+    responsavel: dadosTemporarios.Responsavel,
+    ...dadosTemporarios
+  };
 
-        try {
-          const resposta = await fetch(URL_API, {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(dadosParaEnviar)
-          });
-
-          if (!resposta.ok) throw new Error("Erro ao enviar dados");
+  try {
+    await fetch(URL_API, {
+      method: "POST",
+      mode: "no-cors", // ✅ Resolve bloqueio do navegador
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(dadosParaEnviar)
+    });
           
-          await carregarRegistrosServidor();
-          navegar('menu');
+    await carregarRegistrosServidor();
+    navegar('menu');
           
-          const m = document.getElementById('mensagem');
-          m.innerText = "✨ Registro salvo com sucesso! Disponível em todos os aparelhos.";
-          m.style.display = 'block';
-          setTimeout(() => m.style.display = 'none', 3500);
-        } catch (erro) {
-          console.error("Erro ao salvar:", erro);
-          alert("❌ Não foi possível salvar online. Verifique sua internet e tente novamente.");
-        }
-    }
+    const m = document.getElementById('mensagem');
+    m.innerText = "✨ Registro salvo com sucesso! Disponível em todos os aparelhos.";
+    m.style.display = 'block';
+    setTimeout(() => m.style.display = 'none', 3500);
+  } catch (erro) {
+    console.error("Erro ao salvar:", erro);
+    alert("❌ Não foi possível salvar. Verifique sua internet e tente novamente.");
+  }
+}
 
     async function abrirHistorico() {
         await carregarRegistrosServidor();
