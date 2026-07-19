@@ -281,11 +281,53 @@
 </div>
 
 <script>
-    let turnoAtual = '';
+       let turnoAtual = '';
     let telaAnterior = 'menu';
     let idEdicaoAtual = null; 
     let dadosTemporarios = {};
-    let registros = JSON.parse(localStorage.getItem('registrosCuidados')) || [];
+    let registros = [];
+    // ✅ Endereço do seu servidor Apps Script já preenchido
+    const URL_API = "https://script.google.com/macros/s/AKfycby3BS5BHCC56m7ptVI0p3sQVNztdca9pZCsZa5055FcD1DMLLYZ4DiIPWgFHukZZEw3/exec";
+
+    // ✅ Carrega dados da planilha com a ordem correta dos campos
+    async function carregarRegistrosServidor() {
+      try {
+        const resposta = await fetch(URL_API);
+        if (!resposta.ok) throw new Error("Erro na resposta do servidor");
+        const dadosBrutos = await resposta.json();
+        // Pula a linha de cabeçalho e mapeia os dados na ordem exata da planilha
+        registros = dadosBrutos.slice(1).map(linha => ({
+          id: Date.now() + Math.random(),
+          data: linha[0],
+          hora: linha[1],
+          turno: linha[2],
+          dados: {
+            Responsavel: linha[3],
+            Solifenacina: linha[4],
+            Doxasozina: linha[5],
+            Pantoprazol: linha[6],
+            Levotiroxina: linha[7],
+            Alopurinol: linha[8],
+            Losartana: linha[9],
+            Pregabalina: linha[10],
+            Mirabregona: linha[11],
+            Doxazosina_Noite: linha[12],
+            Finasterida: linha[13],
+            Atorvastatina: linha[14],
+            AAS: linha[15],
+            PAS: linha[16],
+            PAD: linha[17],
+            Pulso: linha[18],
+            Oximetria: linha[19],
+            Observacoes: linha[20]
+          }
+        })).sort((a,b) => new Date(b.data.split('/').reverse().join('-') + ' ' + b.hora) - new Date(a.data.split('/').reverse().join('-') + ' ' + a.hora));
+      } catch (erro) {
+        console.error("Erro ao carregar dados:", erro);
+        alert("⚠️ Usando dados locais temporários. Verifique sua conexão com a internet.");
+        registros = JSON.parse(localStorage.getItem('registrosCuidados')) || [];
+      }
+    }
 
     document.addEventListener('keydown', function(event) {
         if(event.key === "Enter" && event.target.tagName !== "TEXTAREA") {
@@ -293,6 +335,7 @@
         }
     });
 
+    // ✅ Estrutura atualizada com Losartana na manhã
     const estruturaTurnos = {
         manha: {
             titulo: "Manhã", icon: "🌅", color: "var(--manha)",
@@ -301,7 +344,8 @@
                 { nome: "Mesilato de Doxasozina 4mg", id: "Doxasozina" },
                 { nome: "Pantoprazol 20mg", id: "Pantoprazol" },
                 { nome: "Levotiroxina 75mcg", id: "Levotiroxina" },
-                { nome: "Alopurinol 100mg", id: "Alopurinol" }
+                { nome: "Alopurinol 100mg", id: "Alopurinol" },
+                { nome: "Losartana 50mg", id: "Losartana" } // ✅ Novo medicamento adicionado
             ],
             sinaisVitais: true
         },
@@ -435,14 +479,8 @@
     }
 
     function excluirRegistro(id) {
-        if(confirm("⚠️ Tem certeza que deseja excluir este registro?\n\nEsta ação não pode ser desfeita.")) {
-            registros = registros.filter(r => r.id !== id);
-            localStorage.setItem('registrosCuidados', JSON.stringify(registros));
-            abrirHistorico();
-            const m = document.getElementById('mensagem');
-            m.innerText = "🗑️ Registro excluído com sucesso!";
-            m.style.display = 'block';
-            setTimeout(() => m.style.display = 'none', 3000);
+        if(confirm("⚠️ A exclusão de dados online precisa ser feita diretamente na planilha Google para manter a segurança.\n\nVocê pode apagar a linha correspondente na planilha a qualquer momento.")) {
+            navegar('historico');
         }
     }
 
@@ -460,7 +498,7 @@
         dadosTemporarios.turnoFormatado = `${ct.icon} ${ct.titulo}`;
 
         let tdh = idEdicaoAtual 
-            ? `${registros.find(r=>r.id===idEdicaoAtual).data} às ${registros.find(r=>r.id===idEdicaoAtual).hora} (Editado)` 
+            ? `Edição de registro existente` 
             : new Date().toLocaleDateString('pt-BR');
         
         let html = `<h3>Resumo - ${tdh}<br><span style="color:${ct.color};">${dadosTemporarios.turnoFormatado}</span></h3>`;
@@ -486,34 +524,40 @@
         navegar('resumo');
     }
 
-    function salvarDefinitivo() {
-        if (idEdicaoAtual) {
-            const i = registros.findIndex(r => r.id === idEdicaoAtual);
-            if (i !== -1) registros[i].dados = dadosTemporarios;
-            localStorage.setItem('registrosCuidados', JSON.stringify(registros));
-            idEdicaoAtual = null; 
-            navegar('historico'); 
-        } else {
-            const d = new Date();
-            registros.unshift({
-                id: Date.now(),
-                data: d.toLocaleDateString('pt-BR'),
-                hora: d.toLocaleTimeString('pt-BR').substring(0, 5),
-                turno: estruturaTurnos[turnoAtual].titulo,
-                icon: estruturaTurnos[turnoAtual].icon,
-                color: estruturaTurnos[turnoAtual].color,
-                dados: dadosTemporarios
-            });
-            localStorage.setItem('registrosCuidados', JSON.stringify(registros));
-            navegar('menu');
+    async function salvarDefinitivo() {
+        const d = new Date();
+        const dadosParaEnviar = {
+          data: d.toLocaleDateString('pt-BR'),
+          hora: d.toLocaleTimeString('pt-BR').substring(0, 5),
+          turno: estruturaTurnos[turnoAtual].titulo,
+          responsavel: dadosTemporarios.Responsavel,
+          ...dadosTemporarios
+        };
+
+        try {
+          const resposta = await fetch(URL_API, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(dadosParaEnviar)
+          });
+
+          if (!resposta.ok) throw new Error("Erro ao enviar dados");
+          
+          await carregarRegistrosServidor();
+          navegar('menu');
+          
+          const m = document.getElementById('mensagem');
+          m.innerText = "✨ Registro salvo com sucesso! Disponível em todos os aparelhos.";
+          m.style.display = 'block';
+          setTimeout(() => m.style.display = 'none', 3500);
+        } catch (erro) {
+          console.error("Erro ao salvar:", erro);
+          alert("❌ Não foi possível salvar online. Verifique sua internet e tente novamente.");
         }
-        const m = document.getElementById('mensagem');
-        m.innerText = "✨ Registro salvo com sucesso!";
-        m.style.display = 'block';
-        setTimeout(() => m.style.display = 'none', 3500);
     }
 
-    function abrirHistorico() {
+    async function abrirHistorico() {
+        await carregarRegistrosServidor();
         const c = document.getElementById('lista-historico');
         c.innerHTML = '';
         if(registros.length === 0) {
@@ -521,8 +565,8 @@
         } else {
             registros.forEach(reg => {
                 let rm = '', rs = '';
-                const cm = estruturaTurnos[Object.keys(estruturaTurnos).find(k=>estruturaTurnos[k].titulo===reg.turno)].medicamentos;
-                cm.forEach(m => { if(reg.dados[m.id]) rm += `<div><strong>${m.nome}:</strong> ${reg.dados[m.id].split(' ')[0]}</div>`; });
+                const ct = estruturaTurnos[Object.keys(estruturaTurnos).find(k=>estruturaTurnos[k].titulo===reg.turno)];
+                ct.medicamentos.forEach(m => { if(reg.dados[m.id]) rm += `<div><strong>${m.nome}:</strong> ${reg.dados[m.id].split(' ')[0]}</div>`; });
                 
                 const pas=reg.dados.PAS, pad=reg.dados.PAD, p=reg.dados.Pulso, o=reg.dados.Oximetria;
                 if (pas||pad||p||o) {
@@ -534,10 +578,10 @@
                 }
 
                 c.innerHTML += `
-                <div class="registro-card" style="border-left-color: ${reg.color||'var(--primary-color)'};">
-                    <div class="registro-header" style="color: ${reg.color||'var(--primary-color)'}; border-bottom-color: ${reg.color?reg.color+'22':'var(--primary-light)'};">
+                <div class="registro-card" style="border-left-color: ${ct.color||'var(--primary-color)'};">
+                    <div class="registro-header" style="color: ${ct.color||'var(--primary-color)'}; border-bottom-color: ${ct.color?ct.color+'22':'var(--primary-light)'};">
                         <span>${reg.data} às ${reg.hora}</span>
-                        <span>${reg.icon||''} ${reg.turno}</span>
+                        <span>${ct.icon||''} ${reg.turno}</span>
                     </div>
                     <div class="registro-responsavel">👤 ${reg.dados.Responsavel||'Não informado'}</div>
                     <div class="registro-corpo">
@@ -546,7 +590,6 @@
                         ${rs}
                         ${reg.dados.Observacoes?.trim()?`<div class="resumo-obs" style="margin-top:0; font-size:0.95rem;">"${reg.dados.Observacoes}"</div>`:''}
                         <div class="botoes-acao-card">
-                            <button class="btn-excluir" onclick="excluirRegistro(${reg.id})">🗑️ Excluir</button>
                             <button class="btn-editar" onclick="editarRegistro(${reg.id})">✏️ Editar</button>
                         </div>
                     </div>
@@ -636,6 +679,9 @@
         erroEl.style.color = '#166534';
         erroEl.style.borderColor = '#bbf7d0';
     });
+
+    // ✅ Carrega os dados assim que o app abrir
+    document.addEventListener('DOMContentLoaded', carregarRegistrosServidor);
 </script>
 
 </body>
