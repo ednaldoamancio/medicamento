@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Caderno de Cuidados</title>
-
     <!-- ✅ ÍCONES (agora o Chrome reconhece corretamente) -->
     <link rel="icon" type="image/png" href="1784344039065.png">
     <link rel="apple-touch-icon" href="1784344039065.png">
@@ -112,7 +111,6 @@
             display: flex; align-items: center; justify-content: space-between;
             box-shadow: 0 6px 15px rgba(0,0,0,0.08); cursor: pointer; transition: 0.3s;
         }
-        .btn-menu:active { transform: scale(0.97); }
         .btn-menu .icon { font-size: 2.5rem; }
         
         .btn-manha { border-bottom: 8px solid var(--manha); color: #86198f; }
@@ -147,20 +145,24 @@
         .pa-group input { text-align: center; font-size: 1.2rem; font-weight: bold;}
 
         .acoes-container { display: flex; flex-direction: column; gap: 12px; }
-        button { width: 100%; padding: 20px; border: none; border-radius: 14px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: 0.2s;}
+        
+        /* ✅ Melhorias globais nos botões e estado desabilitado */
+        button { width: 100%; padding: 20px; border: none; border-radius: 14px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.15s ease-in-out;}
+        button:active { transform: scale(0.95) !important; opacity: 0.9; }
+        button:disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
         
         .btn-primary { background: var(--primary-gradient); color: white; box-shadow: 0 4px 10px rgba(121, 40, 202, 0.3); }
-        .btn-primary:active { transform: scale(0.98); }
         .btn-success { background-color: var(--success); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
         .btn-voltar { background-color: white; color: var(--text-muted); border: 2px solid var(--border); }
         .btn-voltar:active { background-color: #f8fafc; }
         
+        /* Classe usada quando está enviando pro servidor */
+        .btn-loading { background-color: #64748b !important; box-shadow: none !important; }
+        
         .botoes-acao-card { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
         .btn-editar { width: auto; padding: 10px 15px; background-color: #f8fafc; color: var(--primary-color); border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;}
         .btn-editar:active { background-color: #e2e8f0; }
-        .btn-excluir { width: auto; padding: 10px 15px; background-color: #fef2f2; color: var(--danger); border: 1px solid #fca5a5; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;}
-        .btn-excluir:active { background-color: #fee2e2; }
-
+        
         .resumo-papel {
             background: white; padding: 30px; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             background-image: linear-gradient(#fdf2f8 1px, transparent 1px); background-size: 100% 32px;
@@ -187,7 +189,6 @@
         #mensagem { text-align: center; color: white; background: var(--primary-gradient); padding: 18px; font-weight: bold; border-radius: 12px; margin-bottom: 20px; display: none; box-shadow: 0 4px 10px rgba(121, 40, 202, 0.3); animation: slideDown 0.4s ease; }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* ✅ Mensagem de erro de instalação */
         #erroInstalacao {
             display: none;
             background: #fff1f2;
@@ -267,7 +268,8 @@
         <div class="card" style="padding: 15px; background: #fff1f2; border: 2px solid var(--accent-pink); margin-bottom: 15px; text-align: center; color: #881337; font-weight: bold; border-radius: 12px;">Confirme as informações completas antes de gravar.</div>
         <div class="resumo-papel" id="conteudoResumo"></div>
         <div class="acoes-container">
-            <button type="button" class="btn-success" onclick="salvarDefinitivo()">💾 Confirmar e Salvar</button>
+            <!-- ✅ Botão agora com ID para podermos travá-lo durante o salvamento -->
+            <button type="button" id="btnConfirmarSalvar" class="btn-success" onclick="salvarDefinitivo()">💾 Confirmar e Salvar</button>
             <button type="button" class="btn-voltar" onclick="navegar('formulario')">✏️ Corrigir</button>
         </div>
     </div>
@@ -280,22 +282,19 @@
 
 </div>
 
-<script>
-       let turnoAtual = '';
+<script>   
+    let turnoAtual = '';
     let telaAnterior = 'menu';
     let idEdicaoAtual = null; 
     let dadosTemporarios = {};
     let registros = [];
-    // ✅ Endereço do seu servidor Apps Script já preenchido
-    const URL_API = "https://script.google.com/macros/s/AKfycbyZmOmEfHW7tsvGmJAxzJtcjE3j6xbaCbZMebeOVtRGCouvJLf_mAgx3AbuJayKMTOf/exec";
+    const URL_API = "https://script.google.com/macros/s/AKfycbyBk-d60rgGsrTclkMSG_JUymSfpeMAUSrQACpWT5nRRn6AUAZlNctdIcSnIuj_oYLh/exec";
 
-    // ✅ Carrega dados da planilha com a ordem correta dos campos
     async function carregarRegistrosServidor() {
       try {
         const resposta = await fetch(URL_API);
         if (!resposta.ok) throw new Error("Erro na resposta do servidor");
         const dadosBrutos = await resposta.json();
-        // Pula a linha de cabeçalho e mapeia os dados na ordem exata da planilha
         registros = dadosBrutos.slice(1).map(linha => ({
           id: Date.now() + Math.random(),
           data: linha[0],
@@ -335,7 +334,6 @@
         }
     });
 
-    // ✅ Estrutura atualizada com Losartana na manhã
     const estruturaTurnos = {
         manha: {
             titulo: "Manhã", icon: "🌅", color: "var(--manha)",
@@ -345,7 +343,7 @@
                 { nome: "Pantoprazol 20mg", id: "Pantoprazol" },
                 { nome: "Levotiroxina 75mcg", id: "Levotiroxina" },
                 { nome: "Alopurinol 100mg", id: "Alopurinol" },
-                { nome: "Losartana 50mg", id: "Losartana" } // ✅ Novo medicamento adicionado
+                { nome: "Losartana 50mg", id: "Losartana" } 
             ],
             sinaisVitais: true
         },
@@ -364,7 +362,7 @@
                 { nome: "AAS 100mg", id: "AAS" }
             ],
             sinaisVitais: true 
-        }
+         }
     };
 
     function navegar(telaId) {
@@ -453,9 +451,11 @@
         const index = registros.findIndex(r => r.id === id);
         if (index === -1) return;
         const reg = registros[index];
+        
         idEdicaoAtual = id; 
         turnoAtual = Object.keys(estruturaTurnos).find(k => estruturaTurnos[k].titulo === reg.turno);
         renderizarCamposFormulario(turnoAtual);
+        
         const dados = reg.dados;
         
         const sr = document.getElementById('selectResponsavel');
@@ -478,12 +478,6 @@
         navegar('formulario');
     }
 
-    function excluirRegistro(id) {
-        if(confirm("⚠️ A exclusão de dados online precisa ser feita diretamente na planilha Google para manter a segurança.\n\nVocê pode apagar a linha correspondente na planilha a qualquer momento.")) {
-            navegar('historico');
-        }
-    }
-
     function prepararResumo() {
         const form = document.getElementById('formTurno');
         dadosTemporarios = Object.fromEntries(new FormData(form).entries());
@@ -504,6 +498,7 @@
         let html = `<h3>Resumo - ${tdh}<br><span style="color:${ct.color};">${dadosTemporarios.turnoFormatado}</span></h3>`;
         html += `<div class="resumo-secao">Responsável:</div><div class="resumo-item"><span>Preparado por:</span> <span style="color: var(--accent-pink);">${dadosTemporarios.Responsavel}</span></div>`;
         html += `<div class="resumo-secao">Medicações:</div>`;
+        
         ct.medicamentos.forEach(m => html += `<div class="resumo-item"><span>${m.nome}:</span> <span>${dadosTemporarios[m.id] || '-'}</span></div>`);
 
         if(ct.sinaisVitais) {
@@ -524,36 +519,58 @@
         navegar('resumo');
     }
 
-  async function salvarDefinitivo() {
-  const d = new Date();
-  const dadosParaEnviar = {
-    data: d.toLocaleDateString('pt-BR'),
-    hora: d.toLocaleTimeString('pt-BR').substring(0, 5),
-    turno: estruturaTurnos[turnoAtual].titulo,
-    responsavel: dadosTemporarios.Responsavel,
-    ...dadosTemporarios
-  };
+    async function salvarDefinitivo() {
+        const btnSalvar = document.getElementById('btnConfirmarSalvar');
+        const textoOriginal = btnSalvar.innerHTML;
+        
+        // ✅ 1. TRAVA O BOTÃO E DÁ FEEDBACK VISUAL PARA IMPEDIR MÚLTIPLOS CLIQUES
+        btnSalvar.disabled = true;
+        btnSalvar.innerHTML = "⏳ Salvando, aguarde...";
+        btnSalvar.classList.add('btn-loading');
 
-  try {
-    await fetch(URL_API, {
-      method: "POST",
-      mode: "no-cors", // ✅ Resolve bloqueio do navegador
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(dadosParaEnviar)
-    });
-          
-    await carregarRegistrosServidor();
-    navegar('menu');
-          
-    const m = document.getElementById('mensagem');
-    m.innerText = "✨ Registro salvo com sucesso! Disponível em todos os aparelhos.";
-    m.style.display = 'block';
-    setTimeout(() => m.style.display = 'none', 3500);
-  } catch (erro) {
-    console.error("Erro ao salvar:", erro);
-    alert("❌ Não foi possível salvar. Verifique sua internet e tente novamente.");
-  }
-}
+        try {
+            const d = new Date();
+            
+            // ✅ 2. FIXA O FUSO HORÁRIO NO PADRÃO DO BRASIL
+            const opcoesData = { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' };
+            const opcoesHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', hour12: false };
+            
+            const dataOficial = d.toLocaleDateString('pt-BR', opcoesData);
+            const horaOficial = d.toLocaleTimeString('pt-BR', opcoesHora);
+
+            const dadosParaEnviar = {
+                data: dataOficial,
+                hora: horaOficial,
+                turno: estruturaTurnos[turnoAtual].titulo,
+                responsavel: dadosTemporarios.Responsavel,
+                ...dadosTemporarios
+            };
+
+            await fetch(URL_API, {
+                method: "POST",
+                mode: "no-cors", 
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(dadosParaEnviar)
+            });
+            
+            await carregarRegistrosServidor();
+            navegar('menu');
+            
+            const m = document.getElementById('mensagem');
+            m.innerText = "✨ Registro salvo com sucesso! Disponível em todos os aparelhos.";
+            m.style.display = 'block';
+            setTimeout(() => m.style.display = 'none', 3500);
+            
+        } catch (erro) {
+            console.error("Erro ao salvar:", erro);
+            alert("❌ Não foi possível salvar. Verifique sua internet e tente novamente.");
+        } finally {
+            // ✅ 3. DESTRAVA O BOTÃO CASO DE ERRO OU DEPOIS DE CONCLUIR
+            btnSalvar.disabled = false;
+            btnSalvar.innerHTML = textoOriginal;
+            btnSalvar.classList.remove('btn-loading');
+        }
+    }
 
     async function abrirHistorico() {
         await carregarRegistrosServidor();
@@ -565,6 +582,7 @@
             registros.forEach(reg => {
                 let rm = '', rs = '';
                 const ct = estruturaTurnos[Object.keys(estruturaTurnos).find(k=>estruturaTurnos[k].titulo===reg.turno)];
+                
                 ct.medicamentos.forEach(m => { if(reg.dados[m.id]) rm += `<div><strong>${m.nome}:</strong> ${reg.dados[m.id].split(' ')[0]}</div>`; });
                 
                 const pas=reg.dados.PAS, pad=reg.dados.PAD, p=reg.dados.Pulso, o=reg.dados.Oximetria;
@@ -611,27 +629,20 @@
         a.click();
     }
 
-    // ==========================================
-    // ✅ SISTEMA DE INSTALAÇÃO CORRIGIDO
-    // ==========================================
     const erroEl = document.getElementById('erroInstalacao');
     const btnInstalar = document.getElementById('btnInstalarApp');
     let promptInst = null;
 
-    // 1. Registra o Service Worker (arquivo real sw.js)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
                 .then(() => console.log("✅ Service Worker OK"))
                 .catch(erro => {
                     console.warn("⚠️ SW não carregou:", erro);
-                    erroEl.innerHTML = "💡 Dica: abra este site por um servidor (não como arquivo .html direto). Use o método manual abaixo se precisar.";
-                    erroEl.style.display = 'block';
                 });
         });
     }
 
-    // 2. Mostra o botão quando o Chrome permitir
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         promptInst = e;
@@ -639,17 +650,14 @@
         erroEl.style.display = 'none';
     });
 
-    // 3. Ao clicar em instalar - AGORA mostra ERRO se falhar
     btnInstalar.addEventListener('click', async () => {
         if (!promptInst) {
-            erroEl.innerHTML = "⚠️ Instalação automática não disponível. <strong>Toque nos 3 pontinhos do Chrome ➝ Adicionar à tela inicial</strong> (funciona 100%).";
+            erroEl.innerHTML = "⚠️ Instalação automática não disponível. <strong>Toque nos 3 pontinhos do Chrome ➝ Adicionar à tela inicial</strong>.";
             erroEl.style.display = 'block';
             return;
         }
         try {
             const resultado = await promptInst.prompt();
-            console.log("Resposta instalação:", resultado.outcome);
-            
             if (resultado.outcome === 'dismissed') {
                 erroEl.innerHTML = "Você cancelou. Se quiser tentar de novo, feche e abra o Chrome novamente.";
                 erroEl.style.display = 'block';
@@ -664,12 +672,11 @@
             btnInstalar.style.display = 'none';
         } catch (erro) {
             console.error("❌ Erro instalação:", erro);
-            erroEl.innerHTML = `❌ Falha: ${erro.message || 'erro desconhecido'}.<br><strong>Use o método GARANTIDO:</strong> 3 pontinhos ➝ Adicionar à tela inicial.`;
+            erroEl.innerHTML = `❌ Falha na instalação.<br><strong>Use o método GARANTIDO:</strong> 3 pontinhos ➝ Adicionar à tela inicial.`;
             erroEl.style.display = 'block';
         }
     });
 
-    // 4. Se já estiver instalado, esconde o botão
     window.addEventListener('appinstalled', () => {
         btnInstalar.style.display = 'none';
         erroEl.innerHTML = "✅ App instalado com sucesso! Ícone na tela inicial.";
@@ -679,9 +686,7 @@
         erroEl.style.borderColor = '#bbf7d0';
     });
 
-    // ✅ Carrega os dados assim que o app abrir
     document.addEventListener('DOMContentLoaded', carregarRegistrosServidor);
 </script>
-
 </body>
 </html>
