@@ -146,7 +146,6 @@
 
         .acoes-container { display: flex; flex-direction: column; gap: 12px; }
         
-        /* ✅ Melhorias globais nos botões e estado desabilitado */
         button { width: 100%; padding: 20px; border: none; border-radius: 14px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.15s ease-in-out;}
         button:active { transform: scale(0.95) !important; opacity: 0.9; }
         button:disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
@@ -156,7 +155,6 @@
         .btn-voltar { background-color: white; color: var(--text-muted); border: 2px solid var(--border); }
         .btn-voltar:active { background-color: #f8fafc; }
         
-        /* Classe usada quando está enviando pro servidor */
         .btn-loading { background-color: #64748b !important; box-shadow: none !important; }
         
         .botoes-acao-card { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
@@ -268,7 +266,6 @@
         <div class="card" style="padding: 15px; background: #fff1f2; border: 2px solid var(--accent-pink); margin-bottom: 15px; text-align: center; color: #881337; font-weight: bold; border-radius: 12px;">Confirme as informações completas antes de gravar.</div>
         <div class="resumo-papel" id="conteudoResumo"></div>
         <div class="acoes-container">
-            <!-- ✅ Botão agora com ID para podermos travá-lo durante o salvamento -->
             <button type="button" id="btnConfirmarSalvar" class="btn-success" onclick="salvarDefinitivo()">💾 Confirmar e Salvar</button>
             <button type="button" class="btn-voltar" onclick="navegar('formulario')">✏️ Corrigir</button>
         </div>
@@ -295,32 +292,46 @@
         const resposta = await fetch(URL_API);
         if (!resposta.ok) throw new Error("Erro na resposta do servidor");
         const dadosBrutos = await resposta.json();
-        registros = dadosBrutos.slice(1).map(linha => ({
-          id: Date.now() + Math.random(),
-          data: linha[0],
-          hora: linha[1],
-          turno: linha[2],
-          dados: {
-            Responsavel: linha[3],
-            Solifenacina: linha[4],
-            Doxasozina: linha[5],
-            Pantoprazol: linha[6],
-            Levotiroxina: linha[7],
-            Alopurinol: linha[8],
-            Losartana: linha[9],
-            Pregabalina: linha[10],
-            Mirabregona: linha[11],
-            Doxazosina_Noite: linha[12],
-            Finasterida: linha[13],
-            Atorvastatina: linha[14],
-            AAS: linha[15],
-            PAS: linha[16],
-            PAD: linha[17],
-            Pulso: linha[18],
-            Oximetria: linha[19],
-            Observacoes: linha[20]
+        
+        registros = dadosBrutos.slice(1).map(linha => {
+          // ✅ AQUI ESTÁ A CORREÇÃO: Limpando a formatação do Google Sheets
+          let dataFormatada = linha[0];
+          let horaFormatada = linha[1];
+
+          if (typeof dataFormatada === 'string' && dataFormatada.includes('T')) {
+              dataFormatada = new Date(dataFormatada).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
           }
-        })).sort((a,b) => new Date(b.data.split('/').reverse().join('-') + ' ' + b.hora) - new Date(a.data.split('/').reverse().join('-') + ' ' + a.hora));
+          if (typeof horaFormatada === 'string' && horaFormatada.includes('T')) {
+              horaFormatada = new Date(horaFormatada).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
+          }
+
+          return {
+            id: Date.now() + Math.random(),
+            data: dataFormatada,
+            hora: horaFormatada,
+            turno: linha[2],
+            dados: {
+              Responsavel: linha[3],
+              Solifenacina: linha[4],
+              Doxasozina: linha[5],
+              Pantoprazol: linha[6],
+              Levotiroxina: linha[7],
+              Alopurinol: linha[8],
+              Losartana: linha[9],
+              Pregabalina: linha[10],
+              Mirabregona: linha[11],
+              Doxazosina_Noite: linha[12],
+              Finasterida: linha[13],
+              Atorvastatina: linha[14],
+              AAS: linha[15],
+              PAS: linha[16],
+              PAD: linha[17],
+              Pulso: linha[18],
+              Oximetria: linha[19],
+              Observacoes: linha[20]
+            }
+          };
+        }).sort((a,b) => new Date(b.data.split('/').reverse().join('-') + ' ' + b.hora) - new Date(a.data.split('/').reverse().join('-') + ' ' + a.hora));
       } catch (erro) {
         console.error("Erro ao carregar dados:", erro);
         alert("⚠️ Usando dados locais temporários. Verifique sua conexão com a internet.");
@@ -523,7 +534,6 @@
         const btnSalvar = document.getElementById('btnConfirmarSalvar');
         const textoOriginal = btnSalvar.innerHTML;
         
-        // ✅ 1. TRAVA O BOTÃO E DÁ FEEDBACK VISUAL PARA IMPEDIR MÚLTIPLOS CLIQUES
         btnSalvar.disabled = true;
         btnSalvar.innerHTML = "⏳ Salvando, aguarde...";
         btnSalvar.classList.add('btn-loading');
@@ -531,7 +541,6 @@
         try {
             const d = new Date();
             
-            // ✅ 2. FIXA O FUSO HORÁRIO NO PADRÃO DO BRASIL
             const opcoesData = { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' };
             const opcoesHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', hour12: false };
             
@@ -565,7 +574,6 @@
             console.error("Erro ao salvar:", erro);
             alert("❌ Não foi possível salvar. Verifique sua internet e tente novamente.");
         } finally {
-            // ✅ 3. DESTRAVA O BOTÃO CASO DE ERRO OU DEPOIS DE CONCLUIR
             btnSalvar.disabled = false;
             btnSalvar.innerHTML = textoOriginal;
             btnSalvar.classList.remove('btn-loading');
