@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Caderno de Cuidados</title>
-    <!-- ✅ ÍCONES (agora o Chrome reconhece corretamente) -->
+    <!-- ✅ ÍCONES -->
     <link rel="icon" type="image/png" href="1784344039065.png">
     <link rel="apple-touch-icon" href="1784344039065.png">
-    
-    <!-- ✅ MANIFESTO REAL (agora funciona instalação) -->
+        
+    <!-- ✅ MANIFESTO REAL -->
     <link rel="manifest" href="manifest.json">
-    
+        
     <!-- ✅ Cores do app -->
     <meta name="theme-color" content="#7928ca">
     <meta name="msapplication-TileColor" content="#7928ca">
@@ -29,16 +29,16 @@
             --text-main: #1e293b;
             --text-muted: #64748b;
             --border: #e2e8f0;
-            
+                        
             --manha: #ff9a9e; 
             --tarde: #a1887f; 
             --noite: #7986cb; 
             --success: #10b981;
             --danger: #ef4444; 
         }
-        
+                
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        
+                
         body { background-color: var(--bg); color: var(--text-main); margin: 0; padding: 0; padding-bottom: 40px; }
 
         .header {
@@ -62,7 +62,7 @@
             display: flex;
             align-items: center;
         }
-        
+                
         .header-left { justify-content: flex-start; }
         .header-right { justify-content: flex-end; }
 
@@ -97,9 +97,9 @@
             line-height: 1.2;
             cursor: pointer;
         }
-        
+                
         .app-container { max-width: 600px; margin: 0 auto; padding: 15px; }
-        
+                
         .tela { display: none; }
         .tela.ativa { display: block; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -112,7 +112,7 @@
             box-shadow: 0 6px 15px rgba(0,0,0,0.08); cursor: pointer; transition: 0.3s;
         }
         .btn-menu .icon { font-size: 2.5rem; }
-        
+                
         .btn-manha { border-bottom: 8px solid var(--manha); color: #86198f; }
         .btn-tarde { border-bottom: 8px solid #ff7043; color: #c2410c; }
         .btn-noite { border-bottom: 8px solid var(--noite); color: #1e3a8a; }
@@ -122,12 +122,12 @@
         .card { background: var(--card); border-radius: 16px; padding: 25px; margin-bottom: 25px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--primary-light); }
         .card-header h2 { margin: 0; font-size: 1.4rem; color: var(--primary-color); }
-        
+                
         .item-group { display: flex; flex-direction: column; padding: 18px 0; border-bottom: 1px dashed var(--border); gap: 10px; }
         .item-group:last-child { border-bottom: none; }
-        
+                
         .item-label { font-weight: 700; font-size: 1.4rem; color: #4a044e; line-height: 1.3; margin-bottom: 5px; }
-        
+                
         select, input[type="text"], input[type="number"], textarea {
             padding: 16px; border: 2px solid #fdf4ff; border-radius: 12px; 
             font-size: 1.15rem; background-color: #faf5ff; width: 100%; color: var(--text-main);
@@ -137,7 +137,7 @@
             box-shadow: 0 0 0 4px rgba(255, 0, 128, 0.1);
         }
         textarea { height: 140px; resize: vertical; }
-        
+                
         .vitals-grid { display: grid; grid-template-columns: 1fr; gap: 18px; margin-top: 20px; background: #faf5ff; padding: 20px; border-radius: 12px; border: 1px solid #f3e8ff;}
         .vitals-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .vitals-grid label { font-size: 1rem; color: #701a75; font-weight: 600; margin-bottom: 8px; display: block;}
@@ -145,22 +145,22 @@
         .pa-group input { text-align: center; font-size: 1.2rem; font-weight: bold;}
 
         .acoes-container { display: flex; flex-direction: column; gap: 12px; }
-        
+                
         button { width: 100%; padding: 20px; border: none; border-radius: 14px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.15s ease-in-out;}
         button:active { transform: scale(0.95) !important; opacity: 0.9; }
         button:disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
-        
+                
         .btn-primary { background: var(--primary-gradient); color: white; box-shadow: 0 4px 10px rgba(121, 40, 202, 0.3); }
         .btn-success { background-color: var(--success); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
         .btn-voltar { background-color: white; color: var(--text-muted); border: 2px solid var(--border); }
         .btn-voltar:active { background-color: #f8fafc; }
-        
+                
         .btn-loading { background-color: #64748b !important; box-shadow: none !important; }
-        
+                
         .botoes-acao-card { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
         .btn-editar { width: auto; padding: 10px 15px; background-color: #f8fafc; color: var(--primary-color); border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;}
         .btn-editar:active { background-color: #e2e8f0; }
-        
+                
         .resumo-papel {
             background: white; padding: 30px; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             background-image: linear-gradient(#fdf2f8 1px, transparent 1px); background-size: 100% 32px;
@@ -178,12 +178,12 @@
         .registro-header { display: flex; justify-content: space-between; font-weight: bold; color: var(--primary-color); margin-bottom: 12px; border-bottom: 2px solid var(--primary-light); padding-bottom: 8px; font-size: 1.1rem;}
         .registro-responsavel { font-size: 0.95rem; color: var(--accent-pink); font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 5px; background: #fdf2f8; padding: 8px; border-radius: 8px;}
         .registro-corpo { font-size: 1rem; color: #334155; }
-        
+                
         .med-lista { margin-top: 8px; margin-bottom: 12px; font-size: 1.05rem; line-height: 1.6; color: #475569; }
         .med-lista div { margin-bottom: 8px; padding-left: 10px; border-left: 3px solid #e2e8f0; }
 
         .btn-exportar { background-color: #f1f5f9; color: #333; border: 2px solid #cbd5e1; margin-top: 25px;}
-        
+
         #mensagem { text-align: center; color: white; background: var(--primary-gradient); padding: 18px; font-weight: bold; border-radius: 12px; margin-bottom: 20px; display: none; box-shadow: 0 4px 10px rgba(121, 40, 202, 0.3); animation: slideDown 0.4s ease; }
         @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
@@ -222,18 +222,18 @@
 
     <div id="tela-menu" class="tela ativa">
         <h2 style="color: #701a75; font-size: 1.2rem; text-align: center; margin-bottom: 25px;">Olá! Qual turno você vai registrar agora?</h2>
-        
+                
         <div class="menu-grid">
             <button class="btn-menu btn-manha" onclick="abrirTurno('manha')">
                 <span><span class="icon">🌅</span> Manhã</span>
                 <span style="color: var(--manha);">❯</span>
             </button>
-            
+                        
             <button class="btn-menu btn-tarde" onclick="abrirTurno('tarde')">
                 <span><span class="icon">☀️</span> Tarde</span>
                 <span style="color: #ff7043;">❯</span>
             </button>
-            
+                        
             <button class="btn-menu btn-noite" onclick="abrirTurno('noite')">
                 <span><span class="icon">🌙</span> Noite</span>
                 <span style="color: var(--noite);">❯</span>
@@ -249,7 +249,7 @@
     <div id="tela-formulario" class="tela">
         <form id="formTurno">
             <div class="card" id="card-conteudo"></div>
-            
+                        
             <div class="card">
                 <div class="card-header"><h2>📝 Observações / Ocorrências</h2></div>
                 <p style="font-size: 0.95rem; color: var(--text-muted); margin-top: 0;">Registre sintomas, motivos de suspensão ou medicações adicionais.</p>
@@ -276,10 +276,9 @@
         <div id="lista-historico"></div>
         <button type="button" class="btn-exportar" onclick="exportarCSV()" style="width: 100%;">📥 Baixar Planilha Geral</button>
     </div>
-
 </div>
 
-<script>   
+<script>
     let turnoAtual = '';
     let telaAnterior = 'menu';
     let idEdicaoAtual = null; 
@@ -292,9 +291,8 @@
         const resposta = await fetch(URL_API);
         if (!resposta.ok) throw new Error("Erro na resposta do servidor");
         const dadosBrutos = await resposta.json();
-        
+                
         registros = dadosBrutos.slice(1).map(linha => {
-          // ✅ AQUI ESTÁ A CORREÇÃO: Limpando a formatação do Google Sheets
           let dataFormatada = linha[0];
           let horaFormatada = linha[1];
 
@@ -316,19 +314,17 @@
               Doxasozina: linha[5],
               Pantoprazol: linha[6],
               Levotiroxina: linha[7],
-              Alopurinol: linha[8],
-              Losartana: linha[9],
-              Pregabalina: linha[10],
-              Mirabregona: linha[11],
-              Doxazosina_Noite: linha[12],
-              Finasterida: linha[13],
-              Atorvastatina: linha[14],
-              AAS: linha[15],
-              PAS: linha[16],
-              PAD: linha[17],
-              Pulso: linha[18],
-              Oximetria: linha[19],
-              Observacoes: linha[20]
+              Losartana: linha[8],
+              Pregabalina: linha[9],
+              Doxazosina_Noite: linha[10],
+              Finasterida: linha[11],
+              Atorvastatina: linha[12],
+              AAS: linha[13],
+              PAS: linha[14],
+              PAD: linha[15],
+              Pulso: linha[16],
+              Oximetria: linha[17],
+              Observacoes: linha[18]
             }
           };
         }).sort((a,b) => new Date(b.data.split('/').reverse().join('-') + ' ' + b.hora) - new Date(a.data.split('/').reverse().join('-') + ' ' + a.hora));
@@ -349,13 +345,11 @@
         manha: {
             titulo: "Manhã", icon: "🌅", color: "var(--manha)",
             medicamentos: [
-                { nome: "Succinato de Solifenacina 5mg", id: "Solifenacina" },
                 { nome: "Mesilato de Doxasozina 4mg", id: "Doxasozina" },
                 { nome: "Pantoprazol 20mg", id: "Pantoprazol" },
                 { nome: "Levotiroxina 75mcg", id: "Levotiroxina" },
-                { nome: "Alopurinol 100mg", id: "Alopurinol" },
-                { nome: "Losartana 50mg", id: "Losartana" } 
-            ],
+                { nome: "Losartana 50mg", id: "Losartana" }
+             ],
             sinaisVitais: true
         },
         tarde: {
@@ -366,14 +360,14 @@
         noite: {
             titulo: "Noite", icon: "🌙", color: "var(--noite)",
             medicamentos: [
-                { nome: "Mirabregona 50mg", id: "Mirabregona" },
+                { nome: "Succinato de Solifenacina 5mg", id: "Solifenacina" },
                 { nome: "Doxazosina 4mg", id: "Doxazosina_Noite" },
                 { nome: "Finasterida 5mg", id: "Finasterida" },
                 { nome: "Atorvastatina 40mg", id: "Atorvastatina" },
                 { nome: "AAS 100mg", id: "AAS" }
             ],
-            sinaisVitais: true 
-         }
+            sinaisVitais: true
+          }
     };
 
     function navegar(telaId) {
@@ -462,23 +456,23 @@
         const index = registros.findIndex(r => r.id === id);
         if (index === -1) return;
         const reg = registros[index];
-        
+                
         idEdicaoAtual = id; 
         turnoAtual = Object.keys(estruturaTurnos).find(k => estruturaTurnos[k].titulo === reg.turno);
         renderizarCamposFormulario(turnoAtual);
-        
+                
         const dados = reg.dados;
-        
+                
         const sr = document.getElementById('selectResponsavel');
         const io = document.getElementById('inputOutroResponsavel');
         if (dados.Responsavel === 'Naldo' || dados.Responsavel === 'Gê') sr.value = dados.Responsavel;
         else if (dados.Responsavel) { sr.value = 'Outro'; io.style.display='block'; io.value=dados.Responsavel; }
-        
+                
         estruturaTurnos[turnoAtual].medicamentos.forEach(m => {
             const f = document.querySelector(`select[name="${m.id}"]`);
             if (f && dados[m.id]) f.value = dados[m.id];
         });
-        
+                
         if(estruturaTurnos[turnoAtual].sinaisVitais) {
             ['PAS','PAD','Pulso','Oximetria'].forEach(c => {
                 if(dados[c]) document.querySelector(`input[name="${c}"]`).value = dados[c];
@@ -492,7 +486,7 @@
     function prepararResumo() {
         const form = document.getElementById('formTurno');
         dadosTemporarios = Object.fromEntries(new FormData(form).entries());
-        
+                
         const sr = document.getElementById('selectResponsavel').value;
         const io = document.getElementById('inputOutroResponsavel').value;
         if (sr === '') { alert("⚠️ Selecione quem está registrando."); document.getElementById('selectResponsavel').focus(); return; }
@@ -505,11 +499,11 @@
         let tdh = idEdicaoAtual 
             ? `Edição de registro existente` 
             : new Date().toLocaleDateString('pt-BR');
-        
+                
         let html = `<h3>Resumo - ${tdh}<br><span style="color:${ct.color};">${dadosTemporarios.turnoFormatado}</span></h3>`;
         html += `<div class="resumo-secao">Responsável:</div><div class="resumo-item"><span>Preparado por:</span> <span style="color: var(--accent-pink);">${dadosTemporarios.Responsavel}</span></div>`;
         html += `<div class="resumo-secao">Medicações:</div>`;
-        
+                
         ct.medicamentos.forEach(m => html += `<div class="resumo-item"><span>${m.nome}:</span> <span>${dadosTemporarios[m.id] || '-'}</span></div>`);
 
         if(ct.sinaisVitais) {
@@ -533,17 +527,17 @@
     async function salvarDefinitivo() {
         const btnSalvar = document.getElementById('btnConfirmarSalvar');
         const textoOriginal = btnSalvar.innerHTML;
-        
+                
         btnSalvar.disabled = true;
         btnSalvar.innerHTML = "⏳ Salvando, aguarde...";
         btnSalvar.classList.add('btn-loading');
 
         try {
             const d = new Date();
-            
+                        
             const opcoesData = { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' };
             const opcoesHora = { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit', hour12: false };
-            
+                        
             const dataOficial = d.toLocaleDateString('pt-BR', opcoesData);
             const horaOficial = d.toLocaleTimeString('pt-BR', opcoesHora);
 
@@ -561,15 +555,15 @@
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(dadosParaEnviar)
             });
-            
+                        
             await carregarRegistrosServidor();
             navegar('menu');
-            
+                        
             const m = document.getElementById('mensagem');
             m.innerText = "✨ Registro salvo com sucesso! Disponível em todos os aparelhos.";
             m.style.display = 'block';
             setTimeout(() => m.style.display = 'none', 3500);
-            
+                    
         } catch (erro) {
             console.error("Erro ao salvar:", erro);
             alert("❌ Não foi possível salvar. Verifique sua internet e tente novamente.");
@@ -590,9 +584,9 @@
             registros.forEach(reg => {
                 let rm = '', rs = '';
                 const ct = estruturaTurnos[Object.keys(estruturaTurnos).find(k=>estruturaTurnos[k].titulo===reg.turno)];
-                
+                                
                 ct.medicamentos.forEach(m => { if(reg.dados[m.id]) rm += `<div><strong>${m.nome}:</strong> ${reg.dados[m.id].split(' ')[0]}</div>`; });
-                
+                                
                 const pas=reg.dados.PAS, pad=reg.dados.PAD, p=reg.dados.Pulso, o=reg.dados.Oximetria;
                 if (pas||pad||p||o) {
                     rs += `<div style="font-weight:bold; margin-top:15px;">Sinais Vitais:</div><div class="med-lista">`;
